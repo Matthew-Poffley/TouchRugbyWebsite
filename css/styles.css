@@ -108,6 +108,123 @@
   box-shadow: 0 10px 24px -8px rgba(15, 122, 68, 0.6);
 }
 
+/* Meet the Admins carousel */
+.admin-carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+.admin-track {
+  flex: 1;
+  overflow: hidden;
+}
+
+.admin-slide {
+  display: none;
+  justify-content: center;
+  animation: fade-in 0.25s ease;
+}
+
+.admin-slide.active {
+  display: flex;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Framed-photo card: a mat border around the image with the name as a caption */
+.admin-frame {
+  background: #ffffff;
+  padding: 0.75rem 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 12px 24px -10px rgba(15, 23, 42, 0.2);
+}
+
+.admin-photo {
+  display: block;
+  width: 18rem;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 0.25rem;
+}
+
+.admin-name {
+  margin-top: 0.9rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid #edf2ee;
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #0c5f36;
+}
+
+.admin-desc {
+  margin-top: 0.3rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.carousel-nav {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #0c5f36;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.carousel-nav:hover {
+  background: #ecfdf3;
+  transform: translateY(-1px);
+}
+
+.carousel-nav-left {
+  margin-right: 0.75rem;
+}
+
+.carousel-nav-right {
+  margin-left: 0.75rem;
+}
+
+.admin-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.admin-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 9999px;
+  background: #d1fae0;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease;
+}
+
+.admin-dot.active {
+  background: #0f7a44;
+}
+
 /* "Active now" tag: a quiet label, not a badge shouting for attention */
 .now-tag {
   position: absolute;
