@@ -1,0 +1,148 @@
+/*
+  Custom styles that complement the Tailwind utility classes used in index.html.
+  Tailwind is loaded via CDN in index.html <head>.
+*/
+
+/* Deep, understated gradient for the hero banner */
+.hero-bg {
+  background: linear-gradient(135deg, #0a2e1e 0%, #0c5f36 55%, #0f7a44 100%);
+}
+
+/* Quick-fact pills: quiet, outlined, not shouty */
+.fact-pill {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  color: #ecfdf3;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+}
+
+/* Season cards */
+.season-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 1rem;
+  padding: 2rem 1.75rem 1.75rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 24px -12px rgba(15, 23, 42, 0.12);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.season-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 20px 30px -14px rgba(15, 23, 42, 0.18);
+}
+
+.season-card.is-current {
+  border-color: #0f7a44;
+}
+
+.season-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #0c5f36;
+  margin-bottom: 1.1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid #edf2ee;
+}
+
+.season-card ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  color: #334155;
+  font-size: 0.975rem;
+}
+
+.season-card li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  line-height: 1.4;
+}
+
+.icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+.map-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.map-link:hover {
+  color: #0c5f36;
+  border-bottom-color: #0c5f36;
+}
+
+.whatsapp-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #ffffff;
+  background: #0f7a44;
+  padding: 0.7rem 1.5rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  box-shadow: 0 8px 20px -8px rgba(15, 122, 68, 0.55);
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.whatsapp-link:hover {
+  background: #0c5f36;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px -8px rgba(15, 122, 68, 0.6);
+}
+
+/* "Active now" tag: a quiet label, not a badge shouting for attention */
+.now-tag {
+  position: absolute;
+  top: -0.7rem;
+  right: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #ffffff;
+  color: #0c5f36;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.7rem;
+  border-radius: 9999px;
+  border: 1px solid #d1fae0;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+.now-tag .dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 9999px;
+  background: #0f7a44;
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .now-tag .dot {
+    animation: none;
+  }
+}

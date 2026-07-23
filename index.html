@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bristol Social Touch Rugby</title>
+
+  <!-- Tailwind (CDN, no build step) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Manrope"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            pitch: {
+              50: '#ecfdf3',
+              100: '#d1fae0',
+              600: '#0f7a44',
+              700: '#0c5f36',
+              900: '#0a2e1e',
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="font-display min-h-screen bg-slate-50 text-slate-800">
+
+  <!-- Hero -->
+  <header class="hero-bg text-white px-6 pt-20 pb-24 md:pb-32">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="uppercase tracking-[0.25em] text-pitch-100/80 text-xs md:text-sm font-semibold mb-4">
+        Bristol &middot; Est. Social Touch Rugby
+      </p>
+      <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">
+        Bristol Social Touch Rugby
+      </h1>
+      <p class="text-lg md:text-xl text-pitch-100/90 max-w-xl mx-auto">
+        A relaxed, social touch rugby session &mdash; all year round.
+      </p>
+
+      <!-- Quick facts -->
+      <div class="flex flex-wrap justify-center gap-3 mt-9">
+        <span class="fact-pill">Completely Free</span>
+        <span class="fact-pill">No Experience Needed</span>
+        <span class="fact-pill">Mixed Gender</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Seasons -->
+  <main class="max-w-4xl mx-auto px-6 -mt-14 md:-mt-16 pb-20">
+    <div class="grid sm:grid-cols-2 gap-6">
+      <div id="season-summer" class="season-card">
+        <span class="now-tag hidden"><span class="dot"></span>Active now</span>
+        <p class="season-label">May &ndash; September</p>
+        <ul>
+          <li><span class="icon">📍</span><a href="https://maps.app.goo.gl/bCcr66vdsudLzvhf6" target="_blank" rel="noopener" class="map-link">The park behind Horfield Leisure Centre</a></li>
+          <li><span class="icon">📅</span>Wednesdays</li>
+          <li><span class="icon">⏰</span>18:30 &ndash; 20:00 (ish)</li>
+        </ul>
+      </div>
+
+      <div id="season-winter" class="season-card">
+        <span class="now-tag hidden"><span class="dot"></span>Active now</span>
+        <p class="season-label">September &ndash; May</p>
+        <ul>
+          <li><span class="icon">📍</span><a href="https://maps.app.goo.gl/zQr7ypkfJ28rdfKe7" target="_blank" rel="noopener" class="map-link">Clifton Downs</a></li>
+          <li><span class="icon">📅</span>Saturday or Sunday (we vote depending)</li>
+          <li><span class="icon">⏰</span>10:00 &ndash; 11:30 (ish)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="text-center mt-10">
+      <a href="https://chat.whatsapp.com/C1dEY0hEOQj8VmWmymxiGG" target="_blank" rel="noopener" class="whatsapp-link">
+        <span class="icon">💬</span>Join our WhatsApp group
+      </a>
+    </div>
+  </main>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
