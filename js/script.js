@@ -13,7 +13,24 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   initAdminCarousel();
+  initFaqAccordion();
 });
+
+// FAQ accordion: clicking a question opens its answer and closes any other open one.
+function initFaqAccordion() {
+  const items = document.querySelectorAll('.faq-item');
+
+  items.forEach((item) => {
+    const button = item.querySelector('.faq-question');
+    button.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      items.forEach((other) => other.classList.remove('open'));
+      if (!isOpen) {
+        item.classList.add('open');
+      }
+    });
+  });
+}
 
 // "Meet the Admins" carousel: one photo at a time, with prev/next buttons,
 // dot navigation, and a gentle auto-advance that pauses on hover.

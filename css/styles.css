@@ -40,7 +40,15 @@
 }
 
 .season-card.is-current {
+  border-width: 2px;
   border-color: #0f7a44;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 24px -12px rgba(15, 23, 42, 0.12),
+    0 0 0 4px rgba(245, 158, 11, 0.18), 0 0 28px 2px rgba(245, 158, 11, 0.35);
+}
+
+.season-card.is-current:hover {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 20px 30px -14px rgba(15, 23, 42, 0.18),
+    0 0 0 4px rgba(245, 158, 11, 0.22), 0 0 32px 4px rgba(245, 158, 11, 0.45);
 }
 
 .season-label {
@@ -108,12 +116,20 @@
   box-shadow: 0 10px 24px -8px rgba(15, 122, 68, 0.6);
 }
 
+.whatsapp-subtext {
+  max-width: 28rem;
+  margin: 0.9rem auto 0;
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
 /* Meet the Admins carousel */
 .admin-carousel {
   position: relative;
   display: flex;
   align-items: center;
-  max-width: 28rem;
+  max-width: 34rem;
   margin: 0 auto;
 }
 
@@ -148,7 +164,7 @@
 
 .admin-photo {
   display: block;
-  width: 18rem;
+  width: 24rem;
   aspect-ratio: 4 / 5;
   object-fit: cover;
   border-radius: 0.25rem;
@@ -261,5 +277,78 @@
 @media (prefers-reduced-motion: reduce) {
   .now-tag .dot {
     animation: none;
+  }
+}
+
+/* FAQs accordion */
+.faq-list {
+  max-width: 40rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.faq-item {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.faq-item.open {
+  border-color: #0f7a44;
+  box-shadow: 0 12px 24px -14px rgba(15, 23, 42, 0.18);
+}
+
+.faq-question {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  text-align: left;
+  padding: 1.1rem 1.4rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #0c5f36;
+}
+
+.faq-icon {
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f7a44;
+  transition: transform 0.2s ease;
+}
+
+.faq-item.open .faq-icon {
+  transform: rotate(45deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease;
+}
+
+.faq-item.open .faq-answer {
+  max-height: 12rem;
+}
+
+.faq-answer p {
+  padding: 0 1.4rem 1.1rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-answer {
+    transition: none;
   }
 }

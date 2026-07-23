@@ -1,134 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bristol Social Touch Rugby</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bristol Social Touch Rugby</title>
 
-  <!-- Tailwind (CDN, no build step) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            display: ['"Manrope"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-          },
-          colors: {
-            pitch: {
-              50: '#ecfdf3',
-              100: '#d1fae0',
-              600: '#0f7a44',
-              700: '#0c5f36',
-              900: '#0a2e1e',
+    <!-- Tailwind (CDN, no build step) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['"Manrope"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        pitch: {
+                            50: '#ecfdf3',
+                            100: '#d1fae0',
+                            600: '#0f7a44',
+                            700: '#0c5f36',
+                            900: '#0a2e1e',
+                        },
+                    },
+                },
             },
-          },
-        },
-      },
-    };
-  </script>
+        };
+    </script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="css/styles.css" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body class="font-display min-h-screen bg-slate-50 text-slate-800">
 
-  <!-- Hero -->
-  <header class="hero-bg text-white px-6 pt-20 pb-24 md:pb-32">
-    <div class="max-w-3xl mx-auto text-center">
-      <p class="uppercase tracking-[0.25em] text-pitch-100/80 text-xs md:text-sm font-semibold mb-4">
-        Bristol &middot; Est. Social Touch Rugby
-      </p>
-      <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">
-        Bristol Social Touch Rugby
-      </h1>
-      <p class="text-lg md:text-xl text-pitch-100/90 max-w-xl mx-auto">
-        A relaxed, social touch rugby session &mdash; all year round.
-      </p>
+    <!-- Hero -->
+    <header class="hero-bg text-white px-6 pt-20 pb-24 md:pb-32">
+        <div class="max-w-3xl mx-auto text-center">
+            <p class="uppercase tracking-[0.25em] text-pitch-100/80 text-xs md:text-sm font-semibold mb-4">
+                Bristol &middot; Est. Social Touch Rugby
+            </p>
+            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-4">
+                Bristol Social Touch Rugby
+            </h1>
+            <p class="text-lg md:text-xl text-pitch-100/90 max-w-xl mx-auto">
+                A relaxed, social touch rugby session &mdash; all year round.
+            </p>
 
-      <!-- Quick facts -->
-      <div class="flex flex-wrap justify-center gap-3 mt-9">
-        <span class="fact-pill">Completely Free</span>
-        <span class="fact-pill">No Experience Needed</span>
-        <span class="fact-pill">Mixed Gender</span>
-      </div>
-    </div>
-  </header>
-
-  <!-- Seasons -->
-  <main class="max-w-4xl mx-auto px-6 -mt-14 md:-mt-16 pb-20">
-    <div class="grid sm:grid-cols-2 gap-6">
-      <div id="season-summer" class="season-card">
-        <span class="now-tag hidden"><span class="dot"></span>Active now</span>
-        <p class="season-label">May &ndash; September</p>
-        <ul>
-          <li><span class="icon">📍</span><a href="https://maps.app.goo.gl/bCcr66vdsudLzvhf6" target="_blank" rel="noopener" class="map-link">The park behind Horfield Leisure Centre</a></li>
-          <li><span class="icon">📅</span>Wednesdays</li>
-          <li><span class="icon">⏰</span>18:30 &ndash; 20:00 (ish)</li>
-        </ul>
-      </div>
-
-      <div id="season-winter" class="season-card">
-        <span class="now-tag hidden"><span class="dot"></span>Active now</span>
-        <p class="season-label">September &ndash; May</p>
-        <ul>
-          <li><span class="icon">📍</span><a href="https://maps.app.goo.gl/zQr7ypkfJ28rdfKe7" target="_blank" rel="noopener" class="map-link">Clifton Downs</a></li>
-          <li><span class="icon">📅</span>Saturday or Sunday (we vote depending)</li>
-          <li><span class="icon">⏰</span>10:00 &ndash; 11:30 (ish)</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="text-center mt-10">
-      <a href="https://chat.whatsapp.com/C1dEY0hEOQj8VmWmymxiGG" target="_blank" rel="noopener" class="whatsapp-link">
-        <span class="icon">💬</span>Join our WhatsApp group
-      </a>
-    </div>
-
-    <!-- Meet the Admins -->
-    <section class="mt-20">
-      <h2 class="text-2xl md:text-3xl font-extrabold text-center text-pitch-900 mb-8">Meet the Admins</h2>
-
-      <div id="admin-carousel" class="admin-carousel">
-        <button type="button" id="admin-prev" class="carousel-nav carousel-nav-left" aria-label="Previous admin">&#8249;</button>
-
-        <div id="admin-track" class="admin-track">
-          <div class="admin-slide">
-            <div class="admin-frame">
-              <img src="img/Arron.png" alt="Photo of Arron" class="admin-photo" />
-              <p class="admin-name">Arron</p>
-              <p class="admin-desc">The groups wife beater</p>
-              <p class="admin-desc">"I know he does something horrible to her ~ John"</p>
+            <!-- Quick facts -->
+            <div class="flex flex-wrap justify-center gap-3 mt-9">
+                <span class="fact-pill">Completely Free</span>
+                <span class="fact-pill">No Experience Needed</span>
+                <span class="fact-pill">Mixed Gender</span>
             </div>
-          </div>
-          <div class="admin-slide">
-            <div class="admin-frame">
-              <img src="img/JC.png" alt="Photo of JC" class="admin-photo" />
-              <p class="admin-name">JC</p>
-              <p class="admin-desc">The groups sexist</p>
-              <p class="admin-desc">"What is she, some kinda nurse?"</p>
+        </div>
+    </header>
+
+    <!-- Seasons -->
+    <main class="max-w-4xl mx-auto px-6 -mt-14 md:-mt-16 pb-20">
+        <div class="grid sm:grid-cols-2 gap-6">
+            <div id="season-summer" class="season-card">
+                <span class="now-tag hidden"><span class="dot"></span>Active now</span>
+                <p class="season-label">May &ndash; September</p>
+                <ul>
+                    <li><span class="icon">📍</span><a href="https://maps.app.goo.gl/bCcr66vdsudLzvhf6" target="_blank" rel="noopener" class="map-link">The park behind Horfield Leisure Centre</a></li>
+                    <li><span class="icon">📅</span>Wednesdays</li>
+                    <li><span class="icon">⏰</span>18:30 &ndash; 20:00 (ish)</li>
+                </ul>
             </div>
-          </div>
-          <div class="admin-slide">
-            <div class="admin-frame">
-              <img src="img/John.png" alt="Photo of John" class="admin-photo" />
-              <p class="admin-name">John</p>
-              <p class="admin-desc">The groups homophobe</p>
-              <p class="admin-desc">"There were free sanitary pads in the mens 😡😡"</p>
+
+            <div id="season-winter" class="season-card">
+                <span class="now-tag hidden"><span class="dot"></span>Active now</span>
+                <p class="season-label">September &ndash; May</p>
+                <ul>
+                    <li>
+                        <span class="icon">📍</span>
+                        <a href="https://maps.app.goo.gl/zQr7ypkfJ28rdfKe7" target="_blank" rel="noopener" class="map-link flex gap-2">
+                            <div class="w-full">Clifton Downs</div> 
+                            <div class="text-xs justify-center">(right next to the café but not near the empty tables - god forbid)</div>
+                        </a>
+                    </li>
+                    <li><span class="icon">📅</span>Saturday or Sunday (we vote depending)</li>
+                    <li><span class="icon">⏰</span>10:00 &ndash; 11:30 (ish)</li>
+                </ul>
             </div>
-          </div>
         </div>
 
-        <button type="button" id="admin-next" class="carousel-nav carousel-nav-right" aria-label="Next admin">&#8250;</button>
-      </div>
+        <div class="text-center mt-10">
+            <a href="https://chat.whatsapp.com/C1dEY0hEOQj8VmWmymxiGG" target="_blank" rel="noopener" class="whatsapp-link">
+                <span class="icon">💬</span>Join our WhatsApp group
+            </a>
+            <p class="whatsapp-subtext">
+                It's the best way to stay up to date &mdash; we post a weekly poll to check numbers, use it to vote between Saturday or Sunday in winter, and organise socials too.
+            </p>
+        </div>
 
-      <div id="admin-dots" class="admin-dots"></div>
-    </section>
-  </main>
+        <!-- Meet the Admins -->
+        <section class="mt-20">
+            <h2 class="text-2xl md:text-3xl font-extrabold text-center text-pitch-900 mb-8">Meet the Admins</h2>
 
-  <script src="js/script.js"></script>
+            <div id="admin-carousel" class="admin-carousel">
+                <button type="button" id="admin-prev" class="carousel-nav carousel-nav-left" aria-label="Previous admin">&#8249;</button>
+
+                <div id="admin-track" class="admin-track">
+                    <div class="admin-slide">
+                        <div class="admin-frame">
+                            <img src="img/Arron.png" alt="Photo of Arron" class="admin-photo" />
+                            <p class="admin-name">Arron</p>
+                            <p class="admin-desc">The groups wife beater</p>
+                            <p class="admin-desc">"I know he does something horrible to her ~ John"</p>
+                        </div>
+                    </div>
+                    <div class="admin-slide">
+                        <div class="admin-frame">
+                            <img src="img/JC.png" alt="Photo of JC" class="admin-photo" />
+                            <p class="admin-name">JC</p>
+                            <p class="admin-desc">The groups sexist</p>
+                            <p class="admin-desc">"What is she, some kinda nurse?"</p>
+                        </div>
+                    </div>
+                    <div class="admin-slide">
+                        <div class="admin-frame">
+                            <img src="img/John.png" alt="Photo of John" class="admin-photo" />
+                            <p class="admin-name">John</p>
+                            <p class="admin-desc">The groups homophobe</p>
+                            <p class="admin-desc">"There were free sanitary pads in the mens 😡😡"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" id="admin-next" class="carousel-nav carousel-nav-right" aria-label="Next admin">&#8250;</button>
+            </div>
+
+            <div id="admin-dots" class="admin-dots"></div>
+        </section>
+
+        <!-- FAQs -->
+        <section class="mt-20">
+            <h2 class="text-2xl md:text-3xl font-extrabold text-center text-pitch-900 mb-8">FAQs</h2>
+
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button type="button" class="faq-question">
+                        <span>Do I need to know the rules?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>No we're happy to teach, the basic rules are quick and easy to pick up and we are lenient to new players.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button type="button" class="faq-question">
+                        <span>What do I need to bring with me?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Bring some water and we recommend boots, but you can make do in trainers. In the winter it will be a bit muddy. No need to bring a ball, gumshield or any other equipment.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button type="button" class="faq-question">
+                        <span>Do I have to play for the whole session?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>No, feel free to drop in and drop out as you like.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button type="button" class="faq-question">
+                        <span>How fit do I need to be?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We normally do rolling subs so this is a great way to improve your fitness even if you're just starting out.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button type="button" class="faq-question">
+                        <span>How do the teams work?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We randomly assign teams at the start and mix them up to keep them even as we go.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button type="button" class="faq-question">
+                        <span>Is the group friendly and welcoming?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>No.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/script.js"></script>
 </body>
 </html>
