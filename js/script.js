@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initAdminCarousel();
   initFaqAccordion();
+  initWhatsappCaptcha();
 });
 
 // FAQ accordion: clicking a question opens its answer and closes any other open one.
@@ -88,4 +89,75 @@ function initAdminCarousel() {
 
   goToSlide(0);
   startAutoAdvance();
+}
+
+// "Join the WhatsApp group" captcha: a homemade spot-the-rugby-ball check that
+// gates the real invite link behind a correct selection.
+function initWhatsappCaptcha() {
+  const trigger = document.getElementById('whatsapp-link');
+  const modal = document.getElementById('captcha-modal');
+  const grid = document.getElementById('captcha-grid');
+  const submitButton = document.getElementById('captcha-submit');
+  const errorMessage = document.getElementById('captcha-error');
+  if (!trigger || !modal || !grid || !submitButton || !errorMessage) return;
+
+  // Row-major index (0-15, top-left to bottom-right) of squares containing a rugby ball.
+  const CORRECT_CELLS = [4, 5, 8, 9, 11, 12, 14, 15];
+  const selected = new Set();
+
+  for (let i = 0; i < 16; i++) {
+    const cell = document.createElement('button');
+    cell.type = 'button';
+    cell.className = 'captcha-cell';
+    cell.setAttribute('aria-label', `Square ${i + 1}`);
+    cell.addEventListener('click', () => {
+      const isSelected = cell.classList.toggle('selected');
+      isSelected ? selected.add(i) : selected.delete(i);
+    });
+    grid.appendChild(cell);
+  }
+  const cells = Array.from(grid.children);
+
+  function clearSelection() {
+    selected.clear();
+    cells.forEach((cell) => cell.classList.remove('selected'));
+  }
+
+  function openModal() {
+    clearSelection();
+    errorMessage.classList.add('hidden');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
+  function closeModal() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
+  trigger.addEventListener('click', (event) => {
+    event.preventDefault();
+    openModal();
+  });
+
+  modal.querySelectorAll('[data-captcha-dismiss]').forEach((element) => {
+    element.addEventListener('click', closeModal);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+  });
+
+  submitButton.addEventListener('click', () => {
+    const isCorrect =
+      selected.size === CORRECT_CELLS.length && CORRECT_CELLS.every((index) => selected.has(index));
+
+    if (isCorrect) {
+      closeModal();
+      window.open(trigger.href, '_blank', 'noopener');
+    } else {
+      clearSelection();
+      errorMessage.classList.remove('hidden');
+    }
+  });
 }

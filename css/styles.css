@@ -280,6 +280,27 @@
   }
 }
 
+/* Decorative divider between sections */
+.section-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 3rem;
+}
+
+.divider-line {
+  flex: 1;
+  max-width: 9rem;
+  height: 1px;
+  background: #d1fae0;
+}
+
+.divider-icon {
+  font-size: 1.75rem;
+  transform: rotate(-25deg);
+}
+
 /* FAQs accordion */
 .faq-list {
   max-width: 40rem;
@@ -351,4 +372,60 @@
   .faq-answer {
     transition: none;
   }
+}
+
+/* WhatsApp join captcha */
+#captcha-modal.flex {
+  display: flex;
+}
+
+.captcha-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.9rem;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: #94a3b8;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.captcha-close:hover {
+  color: #475569;
+}
+
+.captcha-grid {
+  position: relative;
+  display: grid;
+  /* Matches the hand-drawn grid lines baked into Captcha_Image.png (976x961),
+     measured in pixels: columns split at 240/488/735, rows split at 247/495/734. */
+  grid-template-columns: 24.6% 25.4% 25.3% 24.7%;
+  grid-template-rows: 25.7% 25.8% 24.9% 23.6%;
+  aspect-ratio: 976 / 961;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  background-image: url('../img/Captcha_Image.png');
+  background-size: 100% 100%;
+  background-position: top center;
+}
+
+.captcha-cell {
+  border: 1px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.captcha-cell.selected {
+  background: rgba(15, 122, 68, 0.4);
+  border-color: #0f7a44;
+}
+
+.captcha-error {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #dc2626;
+  margin-top: 0.75rem;
 }
