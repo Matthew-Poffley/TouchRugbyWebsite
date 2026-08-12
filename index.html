@@ -4,7 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bristol Social Touch Rugby</title>
+    <meta name="description" content="Free, no-experience-needed social touch rugby in Bristol. Wednesdays at Horfield in summer, weekends on Clifton Downs in winter. Mixed gender, all welcome." />
     <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Bristol Social Touch Rugby" />
+    <meta property="og:title" content="Bristol Social Touch Rugby" />
+    <meta property="og:description" content="Free, no-experience-needed social touch rugby in Bristol. Wednesdays at Horfield in summer, weekends on Clifton Downs in winter. Mixed gender, all welcome." />
+    <meta property="og:url" content="https://bristolsocialtouch.com/" />
+    <meta property="og:locale" content="en_GB" />
+    <meta property="og:image" content="https://bristolsocialtouch.com/img/Banner.png" />
+    <meta property="og:image:width" content="641" />
+    <meta property="og:image:height" content="381" />
 
     <!-- Tailwind (CDN, no build step) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -34,6 +46,73 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SportsOrganization",
+        "name": "Bristol Social Touch Rugby",
+        "url": "https://bristolsocialtouch.com/",
+        "description": "Free, no-experience-needed social touch rugby in Bristol. Wednesdays at Horfield in summer, weekends on Clifton Downs in winter. Mixed gender, all welcome.",
+        "image": "https://bristolsocialtouch.com/img/Banner.png",
+        "sameAs": [
+            "https://chat.whatsapp.com/C1dEY0hEOQj8VmWmymxiGG"
+        ],
+        "areaServed": {
+            "@type": "City",
+            "name": "Bristol"
+        }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Do I need to know the rules?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "No we're happy to teach, the basic rules are quick and easy to pick up and we are lenient to new players."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What do I need to bring with me?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Bring some water and we recommend boots, but you can make do in trainers. In the winter it will be a bit muddy. No need to bring a ball, gumshield or any other equipment."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Do I have to play for the whole session?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "No, feel free to drop in and drop out as you like."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How fit do I need to be?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "We normally do rolling subs so this is a great way to improve your fitness even if you're just starting out."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do the teams work?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "We randomly assign teams at the start and mix them up to keep them even as we go."
+                }
+            }
+        ]
+    }
+    </script>
 </head>
 <body class="font-display min-h-screen bg-slate-50 text-slate-800">
 
@@ -64,7 +143,7 @@
         <div class="grid sm:grid-cols-2 gap-6">
             <div id="season-summer" class="season-card">
                 <span class="now-tag hidden"><span class="dot"></span>Active now</span>
-                <p class="season-label">May &ndash; September</p>
+                <h2 class="season-label">May &ndash; September</h2>
                 <ul>
                     <li><span class="icon">📍</span><a href="https://maps.app.goo.gl/bCcr66vdsudLzvhf6" target="_blank" rel="noopener" class="map-link">The park behind Horfield Leisure Centre</a></li>
                     <li><span class="icon">📅</span>Wednesdays</li>
@@ -74,7 +153,7 @@
 
             <div id="season-winter" class="season-card">
                 <span class="now-tag hidden"><span class="dot"></span>Active now</span>
-                <p class="season-label">September &ndash; May</p>
+                <h2 class="season-label">September &ndash; May</h2>
                 <ul>
                     <li>
                         <span class="icon">📍</span>
