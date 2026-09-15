@@ -1109,20 +1109,77 @@
   transform: rotate(45deg);
 }
 
+/* Animates open/closed via grid-template-rows (0fr -> 1fr) rather than a
+   fixed max-height, so answers of any length — including the odd one that
+   runs to several paragraphs — expand to fit their actual content instead
+   of getting clipped. .faq-answer-inner is the grid row's single child;
+   min-height: 0 lets it shrink below its content size while collapsed. */
 .faq-answer {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.25s ease;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
 }
 
 .faq-item.open .faq-answer {
-  max-height: 12rem;
+  grid-template-rows: 1fr;
+}
+
+.faq-answer-inner {
+  min-height: 0;
+  overflow: hidden;
 }
 
 .faq-answer p {
   padding: 0 1.4rem 1.1rem;
   color: #475569;
   line-height: 1.5;
+}
+
+/* A little stack of "customer" quotes inside the boot-recommendations FAQ
+   answer — styled as small testimonial cards rather than a wall of
+   unpunctuated text, so they read as distinct voices from the answer above
+   them. */
+.faq-quotes {
+  margin: 0 1.4rem 1.1rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed #dce5df;
+}
+
+.faq-quotes-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.6rem;
+}
+
+.faq-answer .faq-quote {
+  margin: 0 0 0.6rem;
+  padding: 0.65rem 0.9rem;
+  background: #f0fdf4;
+  border-left: 3px solid #0f7a44;
+  border-radius: 0 0.6rem 0.6rem 0;
+}
+
+.faq-answer .faq-quote:last-child {
+  margin-bottom: 0;
+}
+
+.faq-answer .faq-quote p {
+  padding: 0;
+  font-size: 0.88rem;
+  font-style: italic;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.faq-quote cite {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 700;
+  color: #0f7a44;
 }
 
 @media (prefers-reduced-motion: reduce) {
