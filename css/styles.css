@@ -3,9 +3,34 @@
   Tailwind is loaded via CDN in index.html <head>.
 */
 
-/* Deep, understated gradient for the hero banner */
+/* Deep, understated gradient for the hero banner, with a mown-pitch texture worked in */
 .hero-bg {
-  background: linear-gradient(135deg, #0a2e1e 0%, #0c5f36 55%, #0f7a44 100%);
+  position: relative;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 32px, rgba(0, 0, 0, 0.035) 32px 64px),
+    linear-gradient(135deg, #0a2e1e 0%, #0c5f36 55%, #0f7a44 100%);
+}
+
+.hero-pitch {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.45;
+}
+
+.hero-players {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
 }
 
 /* Quick-fact pills: quiet, outlined, not shouty */
@@ -280,6 +305,269 @@
   }
 }
 
+/* Pitch conditions flip card */
+.weather-flip {
+  perspective: 1400px;
+  cursor: pointer;
+}
+
+.weather-flip:focus-visible .weather-flip-inner {
+  outline: 2px solid #0f7a44;
+  outline-offset: 3px;
+}
+
+.weather-flip-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0.15, 0.2, 1);
+}
+
+.weather-flip.is-flipped .weather-flip-inner {
+  transform: rotateY(180deg);
+}
+
+.weather-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 1rem;
+}
+
+.weather-face-front {
+  position: relative;
+  transform: rotateY(180deg);
+}
+
+.weather-face-back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem;
+  overflow: hidden;
+  background-color: #0c5f36;
+  background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 32px, rgba(0, 0, 0, 0.05) 32px 64px);
+  border: 4px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 24px -12px rgba(15, 23, 42, 0.12);
+}
+
+.pitch-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.pitch-line {
+  stroke: rgba(255, 255, 255, 0.8);
+  vector-effect: non-scaling-stroke;
+}
+
+.pitch-line-solid {
+  stroke-width: 3;
+}
+
+.pitch-line-thin {
+  stroke-width: 2;
+  stroke: rgba(255, 255, 255, 0.6);
+}
+
+.pitch-line-halfway {
+  stroke-width: 4;
+}
+
+.pitch-line-dashed {
+  stroke-width: 2;
+  stroke: rgba(255, 255, 255, 0.6);
+  stroke-dasharray: 10 8;
+}
+
+.pitch-tap-hint {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(10, 46, 30, 0.6);
+  background: rgba(10, 46, 30, 0.35);
+  padding: 0.6rem 1.1rem;
+  border-radius: 9999px;
+  animation: pitch-hint-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes pitch-hint-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weather-flip-inner {
+    transition: none;
+  }
+
+  .pitch-tap-hint {
+    animation: none;
+  }
+}
+
+.weather-card {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  border-radius: 1rem;
+  padding: 1.5rem 1.75rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 24px -12px rgba(15, 23, 42, 0.12);
+}
+
+/* Mud level, rendered as a liquid rising up the card from the bottom. */
+.mud-liquid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0%;
+  z-index: 0;
+  background: linear-gradient(180deg, rgba(124, 82, 45, 0.4) 0%, rgba(69, 44, 21, 0.62) 100%);
+  transition: height 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.mud-wave {
+  position: absolute;
+  top: -16px;
+  left: 0;
+  width: 200%;
+  height: 18px;
+  fill: rgba(124, 82, 45, 0.7);
+  animation: mud-wave-scroll 6s linear infinite;
+}
+
+@keyframes mud-wave-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mud-liquid {
+    transition: none;
+  }
+
+  .mud-wave {
+    animation: none;
+  }
+}
+
+.weather-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid #edf2ee;
+}
+
+.weather-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #0c5f36;
+}
+
+.weather-venue {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.weather-body {
+  position: relative;
+  z-index: 1;
+}
+
+.weather-status {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.weather-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.weather-emoji {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.weather-temp {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0a2e1e;
+}
+
+.weather-desc {
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.weather-wind {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+.mud-meter {
+  margin-top: 1.1rem;
+}
+
+.mud-meter-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.4rem;
+}
+
+.mud-caption {
+  font-weight: 600;
+  color: #334155;
+}
+
+.mud-bar {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #edf2ee;
+  overflow: hidden;
+}
+
+.mud-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #0f7a44, #7a4a0f);
+  transition: width 0.5s ease;
+}
+
 /* Decorative divider between sections */
 .section-divider {
   display: flex;
@@ -398,21 +686,21 @@
 .captcha-grid {
   position: relative;
   display: grid;
-  /* Matches the hand-drawn grid lines baked into Captcha_Image.png (976x961),
-     measured in pixels: columns split at 240/488/735, rows split at 247/495/734. */
-  grid-template-columns: 24.6% 25.4% 25.3% 24.7%;
-  grid-template-rows: 25.7% 25.8% 24.9% 23.6%;
-  aspect-ratio: 976 / 961;
+  /* Arron_Captcha.jpg (976x1086) has no baked-in grid lines, so the cells are
+     uniform and the dividing lines are drawn with .captcha-cell borders instead. */
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  aspect-ratio: 976 / 1086;
   border-radius: 0.75rem;
   overflow: hidden;
   border: 1px solid #e5e7eb;
-  background-image: url('../img/Captcha_Image.png');
+  background-image: url('../img/Arron_Captcha.jpg');
   background-size: 100% 100%;
   background-position: top center;
 }
 
 .captcha-cell {
-  border: 1px solid transparent;
+  border: 1px solid rgba(255, 255, 255, 0.55);
   padding: 0;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
@@ -428,4 +716,12 @@
   font-size: 0.85rem;
   color: #dc2626;
   margin-top: 0.75rem;
+}
+
+/* Confetti burst on a correct captcha */
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
 }

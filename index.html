@@ -118,7 +118,29 @@
 
     <!-- Hero -->
     <header class="hero-bg text-white px-6 pt-20 pb-24 md:pb-32">
-        <div class="max-w-3xl mx-auto text-center">
+        <div class="hero-pitch" aria-hidden="true">
+            <svg class="pitch-lines" viewBox="0 0 1200 700" preserveAspectRatio="none" aria-hidden="true">
+                <!-- 5m lines (touchline side, dashed) -->
+                <line x1="100" y1="50" x2="1100" y2="50" class="pitch-line pitch-line-dashed" />
+                <line x1="100" y1="650" x2="1100" y2="650" class="pitch-line pitch-line-dashed" />
+                <!-- try lines -->
+                <line x1="100" y1="0" x2="100" y2="700" class="pitch-line pitch-line-solid" />
+                <line x1="1100" y1="0" x2="1100" y2="700" class="pitch-line pitch-line-solid" />
+                <!-- 5m lines (goal line side, dashed) -->
+                <line x1="150" y1="0" x2="150" y2="700" class="pitch-line pitch-line-dashed" />
+                <line x1="1050" y1="0" x2="1050" y2="700" class="pitch-line pitch-line-dashed" />
+                <!-- 22m lines -->
+                <line x1="320" y1="0" x2="320" y2="700" class="pitch-line pitch-line-solid" />
+                <line x1="880" y1="0" x2="880" y2="700" class="pitch-line pitch-line-solid" />
+                <!-- 10m lines -->
+                <line x1="500" y1="0" x2="500" y2="700" class="pitch-line pitch-line-thin" />
+                <line x1="700" y1="0" x2="700" y2="700" class="pitch-line pitch-line-thin" />
+                <!-- halfway -->
+                <line x1="600" y1="0" x2="600" y2="700" class="pitch-line pitch-line-halfway" />
+            </svg>
+        </div>
+        <canvas class="hero-players" aria-hidden="true"></canvas>
+        <div class="max-w-3xl mx-auto text-center hero-content">
             <p class="uppercase tracking-[0.25em] text-pitch-100/80 text-xs md:text-sm font-semibold mb-4">
                 Bristol &middot; Est. 1066 &middot; Social Touch Rugby
             </p>
@@ -139,7 +161,7 @@
     </header>
 
     <!-- Seasons -->
-    <main class="max-w-4xl mx-auto px-6 -mt-14 md:-mt-16 pb-20">
+    <main class="relative max-w-4xl mx-auto px-6 -mt-14 md:-mt-16 pb-20">
         <div class="grid sm:grid-cols-2 gap-6">
             <div id="season-summer" class="season-card">
                 <span class="now-tag hidden"><span class="dot"></span>Active now</span>
@@ -147,7 +169,7 @@
                 <ul>
                     <li><span class="icon">📍</span><a href="https://maps.app.goo.gl/bCcr66vdsudLzvhf6" target="_blank" rel="noopener" class="map-link">The park behind Horfield Leisure Centre</a></li>
                     <li><span class="icon">📅</span>Wednesdays</li>
-                    <li><span class="icon">⏰</span>18:30 &ndash; 20:00 (ish)</li>
+                    <li><span class="icon">⏰</span>18:15 &ndash; 20:00 (ish)</li>
                 </ul>
             </div>
 
@@ -165,6 +187,50 @@
                     <li><span class="icon">📅</span>Saturday or Sunday (we vote depending)</li>
                     <li><span class="icon">⏰</span>10:00 &ndash; 11:30 (ish)</li>
                 </ul>
+            </div>
+        </div>
+
+        <!-- Pitch conditions (flip card, starts showing the pitch side) -->
+        <div id="weather-flip" class="weather-flip mt-6" role="button" tabindex="0" aria-pressed="false" aria-label="Flip the card to see the next game day&rsquo;s pitch conditions">
+            <div class="weather-flip-inner">
+                <div class="weather-face weather-face-front weather-card">
+                    <div class="mud-liquid" id="mud-liquid" aria-hidden="true">
+                        <svg class="mud-wave" viewBox="0 0 1200 40" preserveAspectRatio="none">
+                            <path d="M0,20 C150,0 150,40 300,20 C450,0 450,40 600,20 C750,0 750,40 900,20 C1050,0 1050,40 1200,20 V40 H0 Z" />
+                        </svg>
+                    </div>
+                    <div class="weather-header">
+                        <h2 class="weather-title">Pitch conditions</h2>
+                        <span id="weather-venue" class="weather-venue"></span>
+                    </div>
+                    <div id="weather-body" class="weather-body">
+                        <p class="weather-status">Checking the forecast&hellip;</p>
+                    </div>
+                </div>
+                <div class="weather-face weather-face-back">
+                    <!-- viewBox is 120m x 70m at 10 units/metre: 10m in-goal each end, so the
+                         100m field of play runs from x=100 to x=1100. -->
+                    <svg class="pitch-lines" viewBox="0 0 1200 700" preserveAspectRatio="none" aria-hidden="true">
+                        <!-- 5m lines (touchline side, dashed) — stop at the try lines, not into the in-goal area -->
+                        <line x1="100" y1="50" x2="1100" y2="50" class="pitch-line pitch-line-dashed" />
+                        <line x1="100" y1="650" x2="1100" y2="650" class="pitch-line pitch-line-dashed" />
+                        <!-- try lines -->
+                        <line x1="100" y1="0" x2="100" y2="700" class="pitch-line pitch-line-solid" />
+                        <line x1="1100" y1="0" x2="1100" y2="700" class="pitch-line pitch-line-solid" />
+                        <!-- 5m lines (goal line side, dashed) -->
+                        <line x1="150" y1="0" x2="150" y2="700" class="pitch-line pitch-line-dashed" />
+                        <line x1="1050" y1="0" x2="1050" y2="700" class="pitch-line pitch-line-dashed" />
+                        <!-- 22m lines -->
+                        <line x1="320" y1="0" x2="320" y2="700" class="pitch-line pitch-line-solid" />
+                        <line x1="880" y1="0" x2="880" y2="700" class="pitch-line pitch-line-solid" />
+                        <!-- 10m lines -->
+                        <line x1="500" y1="0" x2="500" y2="700" class="pitch-line pitch-line-thin" />
+                        <line x1="700" y1="0" x2="700" y2="700" class="pitch-line pitch-line-thin" />
+                        <!-- halfway -->
+                        <line x1="600" y1="0" x2="600" y2="700" class="pitch-line pitch-line-halfway" />
+                    </svg>
+                    <span class="pitch-tap-hint"><span class="icon">🏉</span>Tap for the next game day&rsquo;s conditions</span>
+                </div>
             </div>
         </div>
 
