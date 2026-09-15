@@ -632,7 +632,7 @@ function initWeatherWidget() {
       if (!response.ok) throw new Error('Weather request failed');
       return response.json();
     })
-    .then((data) => renderWeather(body, data, targetDateStr, venue.hour))
+    .then((data) => renderWeather(body, data, targetDateStr, venue))
     .catch(() => {
       body.innerHTML =
         '<p class="weather-status">Couldn&rsquo;t reach the forecast &mdash; check your favourite weather app instead.</p>';
@@ -712,8 +712,8 @@ function formatLocalDate(date) {
   return `${year}-${month}-${day}`;
 }
 
-function renderWeather(body, data, targetDateStr, sessionHour) {
-  const targetTime = `${targetDateStr}T${String(sessionHour).padStart(2, '0')}:00`;
+function renderWeather(body, data, targetDateStr, venue) {
+  const targetTime = `${targetDateStr}T${String(venue.hour).padStart(2, '0')}:00`;
   let hourIndex = data.hourly.time.indexOf(targetTime);
   if (hourIndex === -1) hourIndex = data.hourly.time.length - 1; // fallback: last available hour
 
@@ -729,10 +729,14 @@ function renderWeather(body, data, targetDateStr, sessionHour) {
   const mud = getMudCondition(rollingRain(dailyRain, gameDayIndex));
 
   // Trend: the same rolling-4-day mud reading, day by day, for the last
-  // MUD_TREND_DAYS days up to and including game day.
+  // MUD_TREND_DAYS days up to and including game day. Also flags which of
+  // those past days were actual game days (matching the in-season venue's
+  // weekday), so the trend can mark how muddy it was last time out.
   const trendPercents = [];
+  const trendIsPastGameDay = [];
   for (let i = gameDayIndex - MUD_TREND_DAYS + 1; i <= gameDayIndex; i++) {
     trendPercents.push(getMudCondition(rollingRain(dailyRain, i)).percent);
+    trendIsPastGameDay.push(i < gameDayIndex && isGameDay(data.daily.time[i], venue.weekdays));
   }
 
   body.innerHTML = `
@@ -750,7 +754,7 @@ function renderWeather(body, data, targetDateStr, sessionHour) {
       <div class="mud-bar"><div class="mud-fill" style="width:${mud.percent}%"></div></div>
       <div class="mud-trend">
         <span class="mud-trend-label">Mud trend &mdash; last 2 weeks</span>
-        ${buildMudTrendSvg(trendPercents)}
+        ${buildMudTrendSvg(trendPercents, trendIsPastGameDay)}
       </div>
     </div>
   `;
@@ -765,13 +769,23 @@ function rollingRain(dailyRain, index) {
   return dailyRain.slice(Math.max(0, index - 3), index + 1).reduce((sum, mm) => sum + mm, 0);
 }
 
+// Whether the given "YYYY-MM-DD" date fell on one of the venue's session
+// weekdays. Parsed as calendar fields (not `new Date(dateStr)`) so it reads
+// as the local date Open-Meteo meant, not shifted by UTC parsing.
+function isGameDay(dateStr, weekdays) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return weekdays.includes(new Date(year, month - 1, day).getDay());
+}
+
 // Sparkline of mud-o-meter percentages over the last couple of weeks, ending
 // at game day. Deliberately reuses getMudCondition's stepped percentages
 // rather than a smoothed curve, so the line always agrees with whatever the
 // bar above it is showing for "today". The filled area under the line (and
 // the "today" dot) are there to make the trend readable at a glance, not
-// just present.
-function buildMudTrendSvg(percents) {
+// just present. Past game days get a little rugby ball above the line, so
+// it's obvious at a glance how muddy it was last time out, not just
+// "recently".
+function buildMudTrendSvg(percents, isPastGameDay) {
   const width = 280;
   const height = 44;
   const padY = 4;
@@ -784,12 +798,25 @@ function buildMudTrendSvg(percents) {
   const areaPoints = `0,${height} ${points} ${width.toFixed(1)},${height}`;
   const last = coords[coords.length - 1];
 
+  const balls = coords
+    .map(({ x, y }, i) =>
+      isPastGameDay[i]
+        ? `<span class="mud-trend-ball" style="left:${((x / width) * 100).toFixed(1)}%;top:${(
+            (y / height) * 100
+          ).toFixed(1)}%" title="Game day">🏉</span>`
+        : ''
+    )
+    .join('');
+
   return `
-    <svg class="mud-sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true">
-      <polygon class="mud-sparkline-area" points="${areaPoints}"></polygon>
-      <polyline class="mud-sparkline-line" points="${points}"></polyline>
-      <circle class="mud-sparkline-dot" cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3.4" />
-    </svg>
+    <div class="mud-trend-chart">
+      <svg class="mud-sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true">
+        <polygon class="mud-sparkline-area" points="${areaPoints}"></polygon>
+        <polyline class="mud-sparkline-line" points="${points}"></polyline>
+        <circle class="mud-sparkline-dot" cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3.4" />
+      </svg>
+      ${balls}
+    </div>
   `;
 }
 

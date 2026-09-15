@@ -349,6 +349,72 @@
   box-shadow: 0 10px 24px -8px rgba(15, 122, 68, 0.6);
 }
 
+/* Glowing rainbow ring around the WhatsApp button — the exact same
+   spinning-conic-gradient-ring technique as the fact-pill chips up top (see
+   --glow-angle), just with a full rainbow sweep instead of a single accent
+   colour. ::after is the crisp ring (a conic-gradient masked down to just
+   the border, via the padding + mask-composite:exclude trick); ::before is
+   the same ring, blurred and sat behind, so the colour bleeds outward into
+   a soft glow rather than looking like a sharp gradient line. */
+@property --whatsapp-glow-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.whatsapp-cta {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+  border-radius: 9999px;
+}
+
+.whatsapp-cta::before,
+.whatsapp-cta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2.5px;
+  background: conic-gradient(
+    from var(--whatsapp-glow-angle),
+    #ff3b3b 0deg,
+    #ff9d3b 60deg,
+    #ffe63b 120deg,
+    #3bff6e 180deg,
+    #3bd4ff 240deg,
+    #8f3bff 300deg,
+    #ff3b3b 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: whatsapp-glow-spin 6s linear infinite;
+}
+
+.whatsapp-cta::before {
+  inset: -4px;
+  padding: 6.5px;
+  z-index: -2;
+  filter: blur(6px);
+  opacity: 0.9;
+}
+
+.whatsapp-cta::after {
+  z-index: -1;
+}
+
+@keyframes whatsapp-glow-spin {
+  to { --whatsapp-glow-angle: 360deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-cta::before,
+  .whatsapp-cta::after {
+    animation: none;
+  }
+}
+
 .whatsapp-subtext {
   max-width: 28rem;
   margin: 0.9rem auto 0;
@@ -834,11 +900,25 @@
   margin-bottom: 0.4rem;
 }
 
+.mud-trend-chart {
+  position: relative;
+}
+
 .mud-sparkline {
   display: block;
   width: 100%;
   height: 2.75rem;
   overflow: visible;
+}
+
+/* Positioned in plain HTML (not as SVG text) so the emoji isn't squashed by
+   the sparkline's non-uniform viewBox scaling — see buildMudTrendSvg. */
+.mud-trend-ball {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 3px));
+  font-size: 0.8rem;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .mud-sparkline-area {
@@ -978,10 +1058,10 @@
   transform: rotate(-25deg);
 }
 
-/* FAQs accordion */
+/* FAQs accordion — deliberately no max-width of its own, so it matches
+   the full width of the pitch-conditions card above (see .weather-flip),
+   both just filling the <main> container. */
 .faq-list {
-  max-width: 40rem;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
