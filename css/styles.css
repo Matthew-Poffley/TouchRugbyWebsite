@@ -33,8 +33,26 @@
   z-index: 2;
 }
 
-/* Quick-fact pills: quiet, outlined, not shouty */
+/* Quick-fact pills: quiet, outlined, not shouty — but each has its own
+   colour of glowing border, with one bright point that sweeps around it.
+   ::after is the crisp ring itself (a conic-gradient masked down to just
+   the border, via the padding + mask-composite:exclude trick). ::before is
+   the same bright point, blurred and sitting behind, so the light actually
+   looks like it's bleeding off the border rather than just being a sharp
+   gradient. */
+@property --glow-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
 .fact-pill {
+  --glow-dim: rgba(45, 212, 191, 0.35);
+  --glow-bright: #2dd4bf;
+  --glow-hot: #f0fdfa;
+  --glow-duration: 5s;
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   font-weight: 600;
@@ -43,14 +61,76 @@
   padding: 0.45rem 1rem;
   border-radius: 9999px;
   color: #ecfdf3;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(4px);
+}
+
+.fact-pill:nth-of-type(2) {
+  --glow-dim: rgba(192, 132, 252, 0.35);
+  --glow-bright: #c084fc;
+  --glow-hot: #faf5ff;
+  --glow-duration: 6s;
+}
+
+.fact-pill:nth-of-type(3) {
+  --glow-dim: rgba(251, 146, 60, 0.35);
+  --glow-bright: #fb923c;
+  --glow-hot: #fff7ed;
+  --glow-duration: 4.5s;
+}
+
+.fact-pill::before,
+.fact-pill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--glow-angle),
+    var(--glow-dim) 0deg,
+    var(--glow-dim) 260deg,
+    var(--glow-bright) 300deg,
+    var(--glow-hot) 330deg,
+    var(--glow-bright) 345deg,
+    var(--glow-dim) 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: fact-pill-spin var(--glow-duration) linear infinite;
+}
+
+/* The blurred halo sits behind the crisp ring and is inset slightly further
+   out so its glow bleeds outward from the border rather than inward over
+   the pill's own background. */
+.fact-pill::before {
+  inset: -3px;
+  padding: 4.5px;
+  z-index: -2;
+  filter: blur(4px);
+  opacity: 0.9;
+}
+
+.fact-pill::after {
+  z-index: -1;
+}
+
+@keyframes fact-pill-spin {
+  to { --glow-angle: 360deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fact-pill::before,
+  .fact-pill::after {
+    animation: none;
+  }
 }
 
 /* Season cards */
 .season-card {
   position: relative;
+  z-index: 3;
   background: #ffffff;
   border-radius: 1rem;
   padding: 2rem 1.75rem 1.75rem;

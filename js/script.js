@@ -53,7 +53,7 @@ function initHeroPlayers() {
     window.addEventListener('resize', resize);
   }
 
-  const TEAM_WHITE = 'rgba(255, 255, 255, 0.9)';
+  const TEAM_PALE_BLUE = 'rgba(191, 219, 254, 0.9)';
   const TEAM_AMBER = 'rgba(245, 158, 11, 0.95)';
   const BALL_COLOR = 'rgba(232, 184, 125, 0.95)';
   const TRY_LINE = 1100 / 1200; // matches the try line drawn in the pitch background SVG
@@ -262,8 +262,8 @@ function initHeroPlayers() {
 
     direction = cycle % 2 === 0 ? 1 : -1;
     flipAcross = cycle % 2 === 1;
-    const attackColor = cycle % 2 === 0 ? TEAM_WHITE : TEAM_AMBER;
-    const defendColor = cycle % 2 === 0 ? TEAM_AMBER : TEAM_WHITE;
+    const attackColor = cycle % 2 === 0 ? TEAM_PALE_BLUE : TEAM_AMBER;
+    const defendColor = cycle % 2 === 0 ? TEAM_AMBER : TEAM_PALE_BLUE;
 
     ctx.clearRect(0, 0, width, height);
     // Fade the play in and out so the loop back to the start isn't a hard cut.
