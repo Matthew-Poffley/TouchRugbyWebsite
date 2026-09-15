@@ -19,6 +19,76 @@
   opacity: 0.45;
 }
 
+/* When it's actually raining in Bristol right now (checked once on load,
+   see initHeroWeather in script.js), .hero-bg gets .is-raining and these
+   two fade in: falling streaks, and a sheen along the bottom of the pitch
+   where the puddles would be gathering. */
+.hero-rain {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
+  background-image:
+    repeating-linear-gradient(102deg, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(102deg, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 13px);
+  background-size: 100% 260%, 100% 260%;
+  background-position: 0 0, 40% 0;
+  animation: hero-rain-fall 0.5s linear infinite;
+}
+
+@keyframes hero-rain-fall {
+  from { background-position: 0 0, 40% 0; }
+  to { background-position: 5% 100%, 45% 100%; }
+}
+
+.hero-puddles {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 22%;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
+  overflow: hidden;
+  background: linear-gradient(to top, rgba(180, 210, 200, 0.22), transparent);
+}
+
+.hero-puddles::after {
+  content: '';
+  position: absolute;
+  inset: -20% -40%;
+  background: linear-gradient(
+    75deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.16) 48%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0.16) 52%,
+    transparent 60%
+  );
+  animation: hero-puddle-shimmer 5s ease-in-out infinite;
+}
+
+@keyframes hero-puddle-shimmer {
+  0%, 100% { transform: translateX(-15%); }
+  50% { transform: translateX(15%); }
+}
+
+.hero-bg.is-raining .hero-rain,
+.hero-bg.is-raining .hero-puddles {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rain,
+  .hero-puddles::after {
+    animation: none;
+  }
+}
+
 .hero-players {
   position: absolute;
   inset: 0;
@@ -387,7 +457,6 @@
 
 /* Pitch conditions flip card */
 .weather-flip {
-  perspective: 1400px;
   cursor: pointer;
 }
 
@@ -398,23 +467,17 @@
 
 .weather-flip-inner {
   position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.4, 0.15, 0.2, 1);
-}
-
-.weather-flip.is-flipped .weather-flip-inner {
-  transform: rotateY(180deg);
 }
 
 .weather-face {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
   border-radius: 1rem;
+  transition: opacity 0.6s ease;
 }
 
 .weather-face-front {
   position: relative;
-  transform: rotateY(180deg);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .weather-face-back {
@@ -430,6 +493,17 @@
   background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 32px, rgba(0, 0, 0, 0.05) 32px 64px);
   border: 4px solid rgba(255, 255, 255, 0.85);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 24px -12px rgba(15, 23, 42, 0.12);
+  opacity: 1;
+}
+
+.weather-flip.is-flipped .weather-face-front {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.weather-flip.is-flipped .weather-face-back {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .pitch-lines {
@@ -486,7 +560,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .weather-flip-inner {
+  .weather-face {
     transition: none;
   }
 
@@ -544,6 +618,43 @@
 
   .mud-wave {
     animation: none;
+  }
+}
+
+/* Little mud splats trail the cursor across the pitch-conditions card once
+   it's flipped over — see initMudSplats in script.js. Each one is a couple
+   of layered irregular blobs so it reads as a splash, not a neat dot. */
+.mud-splat {
+  position: absolute;
+  z-index: 1;
+  width: 22px;
+  height: 16px;
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(var(--splat-rotate, 0deg)) scale(var(--splat-scale, 1));
+  background:
+    radial-gradient(circle at 30% 35%, rgba(69, 44, 21, 0.8) 0 22%, transparent 24%),
+    radial-gradient(circle at 68% 60%, rgba(69, 44, 21, 0.7) 0 26%, transparent 28%),
+    radial-gradient(circle at 50% 15%, rgba(69, 44, 21, 0.6) 0 14%, transparent 16%),
+    radial-gradient(ellipse at 50% 50%, rgba(89, 58, 30, 0.55) 0 60%, transparent 72%);
+  animation: mud-splat-fade 0.9s ease-out forwards;
+}
+
+@keyframes mud-splat-fade {
+  0% {
+    opacity: 0.9;
+  }
+  70% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mud-splat {
+    animation: none;
+    display: none;
   }
 }
 

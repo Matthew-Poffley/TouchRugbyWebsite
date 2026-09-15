@@ -139,6 +139,8 @@
                 <line x1="600" y1="0" x2="600" y2="700" class="pitch-line pitch-line-halfway" />
             </svg>
         </div>
+        <div class="hero-rain" aria-hidden="true"></div>
+        <div class="hero-puddles" aria-hidden="true"></div>
         <canvas class="hero-players" aria-hidden="true"></canvas>
         <div class="max-w-3xl mx-auto text-center hero-content">
             <p class="uppercase tracking-[0.25em] text-pitch-100/80 text-xs md:text-sm font-semibold mb-4">
@@ -191,7 +193,7 @@
         </div>
 
         <!-- Pitch conditions (flip card, starts showing the pitch side) -->
-        <div id="weather-flip" class="weather-flip mt-6" role="button" tabindex="0" aria-pressed="false" aria-label="Flip the card to see the next game day&rsquo;s pitch conditions">
+        <div id="weather-flip" class="weather-flip mt-6" role="button" tabindex="0" aria-pressed="false" aria-label="Show the next game day&rsquo;s pitch conditions">
             <div class="weather-flip-inner">
                 <div class="weather-face weather-face-front weather-card">
                     <div class="mud-liquid" id="mud-liquid" aria-hidden="true">

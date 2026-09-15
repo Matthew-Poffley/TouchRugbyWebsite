@@ -11,7 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initWhatsappCaptcha();
   initWeatherWidget();
   initWeatherFlip();
+  initMudSplats();
   initHeroPlayers();
+  initHeroWeather();
 });
 
 // The hero background loops a rugby strike play, run until it scores: the
@@ -284,6 +286,38 @@ function initHeroPlayers() {
   requestAnimationFrame(frame);
 }
 
+// Rain codes from the Open-Meteo WMO table (see WEATHER_CODES below) — drizzle,
+// rain and thunderstorms, but not fog or snow-only codes.
+const RAIN_WEATHER_CODES = new Set([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99]);
+
+// If it's actually raining in Bristol right now, the hero background gets a
+// couple of decorative flourishes (see .hero-bg.is-raining in styles.css).
+// Checked once on load — this is a bit of weather-reactive fun, not a forecast,
+// so it isn't worth polling or refreshing while the page is open.
+function initHeroWeather() {
+  const hero = document.querySelector('.hero-bg');
+  if (!hero) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const BRISTOL_LAT = 51.4545;
+  const BRISTOL_LON = -2.5879;
+  const url =
+    `https://api.open-meteo.com/v1/forecast?latitude=${BRISTOL_LAT}&longitude=${BRISTOL_LON}` +
+    '&current=weather_code&timezone=Europe%2FLondon';
+
+  fetch(url)
+    .then((response) => {
+      if (!response.ok) throw new Error('Weather request failed');
+      return response.json();
+    })
+    .then((data) => {
+      if (RAIN_WEATHER_CODES.has(data.current?.weather_code)) {
+        hero.classList.add('is-raining');
+      }
+    })
+    .catch(() => {}); // purely decorative — fail silently
+}
+
 // Pitch-conditions flip card: starts showing the pitch side, flips to reveal
 // the weather widget on click (or Enter/Space, since it's a button).
 function initWeatherFlip() {
@@ -301,6 +335,53 @@ function initWeatherFlip() {
       event.preventDefault();
       toggle();
     }
+  });
+}
+
+// Little mud splats trail the cursor across the pitch-conditions card once
+// it's flipped over to the muddy side — purely for fun, so it's skipped
+// under reduced motion and throttled by distance so a fast swipe doesn't
+// carpet the card in splats.
+function initMudSplats() {
+  const flip = document.getElementById('weather-flip');
+  const card = document.querySelector('.weather-face-front.weather-card');
+  if (!flip || !card) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const MIN_DISTANCE = 22; // px the pointer must travel before the next splat
+  const MAX_SPLATS = 40; // safety cap for a long hover session
+  let lastX = null;
+  let lastY = null;
+  let splats = [];
+
+  function spawnSplat(x, y) {
+    const splat = document.createElement('span');
+    splat.className = 'mud-splat';
+    splat.style.left = `${x}px`;
+    splat.style.top = `${y}px`;
+    splat.style.setProperty('--splat-rotate', `${Math.random() * 360}deg`);
+    splat.style.setProperty('--splat-scale', `${0.75 + Math.random() * 0.5}`);
+    splat.addEventListener('animationend', () => splat.remove());
+    card.appendChild(splat);
+    splats.push(splat);
+    if (splats.length > MAX_SPLATS) splats.shift().remove();
+  }
+
+  flip.addEventListener('pointermove', (event) => {
+    if (!flip.classList.contains('is-flipped')) return;
+    const rect = card.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+    if (lastX !== null && Math.hypot(x - lastX, y - lastY) < MIN_DISTANCE) return;
+    lastX = x;
+    lastY = y;
+    spawnSplat(x, y);
+  });
+
+  flip.addEventListener('pointerleave', () => {
+    lastX = null;
+    lastY = null;
   });
 }
 
