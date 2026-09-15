@@ -116,6 +116,18 @@
 </head>
 <body class="font-display min-h-screen bg-slate-50 text-slate-800">
 
+    <!-- Sticky "next session" countdown bar -->
+    <div class="game-countdown" id="game-countdown">
+        <span class="icon">🏉</span>
+        <span class="game-countdown-label">Next session in</span>
+        <div class="game-countdown-clock">
+            <span class="countdown-segment"><span class="countdown-value" id="countdown-days">00</span><span class="countdown-unit">d</span></span>
+            <span class="countdown-segment"><span class="countdown-value" id="countdown-hours">00</span><span class="countdown-unit">h</span></span>
+            <span class="countdown-segment"><span class="countdown-value" id="countdown-mins">00</span><span class="countdown-unit">m</span></span>
+            <span class="countdown-segment"><span class="countdown-value" id="countdown-secs">00</span><span class="countdown-unit">s</span></span>
+        </div>
+    </div>
+
     <!-- Hero -->
     <header class="hero-bg text-white px-6 pt-20 pb-24 md:pb-32">
         <div class="hero-pitch" aria-hidden="true">
@@ -173,6 +185,8 @@
                     <li><span class="icon">📅</span>Wednesdays</li>
                     <li><span class="icon">⏰</span>18:15 &ndash; 20:00 (ish)</li>
                 </ul>
+                <button type="button" class="distance-check" data-venue-name="Horfield" data-venue-lat="51.4838" data-venue-lon="-2.5844"><span class="icon">📍</span>How far away are you?</button>
+                <p class="distance-result hidden"></p>
             </div>
 
             <div id="season-winter" class="season-card">
@@ -182,13 +196,15 @@
                     <li>
                         <span class="icon">📍</span>
                         <a href="https://maps.app.goo.gl/zQr7ypkfJ28rdfKe7" target="_blank" rel="noopener" class="map-link flex gap-2">
-                            <div class="w-full">Clifton Downs</div> 
+                            <div class="w-full">Clifton Downs</div>
                             <div class="text-xs justify-center">(right next to the café but not near the empty tables - god forbid)</div>
                         </a>
                     </li>
                     <li><span class="icon">📅</span>Saturday or Sunday (we vote depending)</li>
                     <li><span class="icon">⏰</span>10:00 &ndash; 11:30 (ish)</li>
                 </ul>
+                <button type="button" class="distance-check" data-venue-name="Clifton Downs" data-venue-lat="51.4676" data-venue-lon="-2.6207"><span class="icon">📍</span>How far away are you?</button>
+                <p class="distance-result hidden"></p>
             </div>
         </div>
 
@@ -207,15 +223,6 @@
                     </div>
                     <div id="weather-body" class="weather-body">
                         <p class="weather-status">Checking the forecast&hellip;</p>
-                    </div>
-                    <div class="game-countdown" id="game-countdown">
-                        <span class="game-countdown-label">Next session in</span>
-                        <div class="game-countdown-clock">
-                            <span class="countdown-segment"><span class="countdown-value" id="countdown-days">00</span><span class="countdown-unit">d</span></span>
-                            <span class="countdown-segment"><span class="countdown-value" id="countdown-hours">00</span><span class="countdown-unit">h</span></span>
-                            <span class="countdown-segment"><span class="countdown-value" id="countdown-mins">00</span><span class="countdown-unit">m</span></span>
-                            <span class="countdown-segment"><span class="countdown-value" id="countdown-secs">00</span><span class="countdown-unit">s</span></span>
-                        </div>
                     </div>
                 </div>
                 <div class="weather-face weather-face-back">

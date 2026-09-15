@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initWeatherWidget();
   initWeatherFlip();
   initGameCountdown();
+  initDistanceCheck();
   initMudSplats();
   initHeroPlayers();
   initHeroWeather();
@@ -519,6 +520,83 @@ function getCurrentVenue(now) {
     : { name: 'Clifton Downs', lat: 51.4676, lon: -2.6207, weekdays: [6, 0], hour: 10 }; // Sat or Sun
 }
 
+const WALK_MPH = 3; // rough flat-ground walking pace
+const DRIVE_MPH = 20; // rough average for a short local drive, traffic and stops included
+const WALK_MINS_CUTOFF = 30; // beyond this, show the drive time instead
+
+// "How far away are you?" — one button per season card, each pinned to that
+// card's venue via data attributes, showing straight-line distance and a
+// rough walking time (or, if that's over half an hour, driving time instead)
+// from wherever the browser says the visitor is.
+function initDistanceCheck() {
+  const buttons = document.querySelectorAll('.distance-check');
+  if (!buttons.length) return;
+
+  if (!('geolocation' in navigator)) {
+    buttons.forEach((button) => {
+      button.hidden = true;
+    });
+    return;
+  }
+
+  buttons.forEach((button) => {
+    const result = button.nextElementSibling;
+    if (!result || !result.classList.contains('distance-result')) return;
+
+    const venue = {
+      name: button.dataset.venueName,
+      lat: Number(button.dataset.venueLat),
+      lon: Number(button.dataset.venueLon),
+    };
+    const defaultLabel = button.innerHTML;
+
+    button.addEventListener('click', () => {
+      button.disabled = true;
+      button.innerHTML = '<span class="icon">📍</span>Finding you&hellip;';
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const miles = haversineMiles(
+            position.coords.latitude,
+            position.coords.longitude,
+            venue.lat,
+            venue.lon
+          );
+          const walkMins = Math.max(1, Math.round((miles / WALK_MPH) * 60));
+          const travelText =
+            walkMins > WALK_MINS_CUTOFF
+              ? `${Math.max(1, Math.round((miles / DRIVE_MPH) * 60))} min drive`
+              : `${walkMins} min walk`;
+          result.textContent = `About ${miles.toFixed(1)} miles from ${venue.name} — roughly ${travelText}.`;
+          result.classList.remove('hidden');
+          button.disabled = false;
+          button.innerHTML = defaultLabel;
+        },
+        () => {
+          result.textContent = "Couldn't get your location — check your browser's location permission and try again.";
+          result.classList.remove('hidden');
+          button.disabled = false;
+          button.innerHTML = defaultLabel;
+        },
+        { timeout: 8000 }
+      );
+    });
+  });
+}
+
+// Great-circle distance in miles between two lat/lon points.
+function haversineMiles(lat1, lon1, lat2, lon2) {
+  const EARTH_RADIUS_MILES = 3958.8;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  return EARTH_RADIUS_MILES * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+const MUD_TREND_DAYS = 14; // how many days the mud-o-meter sparkline covers
+
 // "Pitch conditions" weather widget: forecasts conditions for the next game
 // day (not just "right now") at whichever venue is in season, plus a
 // "mud-o-meter" built from rainfall accumulating up to that day.
@@ -542,10 +620,12 @@ function initWeatherWidget() {
   if (venueLabel) venueLabel.textContent = `${venue.name} · ${dayLabel}`;
 
   const forecastDays = daysAhead + 1;
+  // past_days covers the MUD_TREND_DAYS sparkline (see renderWeather) plus a
+  // 3-day lookback for the rolling window its earliest point needs.
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${venue.lat}&longitude=${venue.lon}` +
     '&hourly=temperature_2m,weather_code,wind_speed_10m&daily=precipitation_sum' +
-    `&past_days=3&forecast_days=${forecastDays}&timezone=Europe%2FLondon&wind_speed_unit=mph`;
+    `&past_days=${MUD_TREND_DAYS + 3}&forecast_days=${forecastDays}&timezone=Europe%2FLondon&wind_speed_unit=mph`;
 
   fetch(url)
     .then((response) => {
@@ -574,15 +654,29 @@ function getNextSessionDate(venue, now) {
   return null; // unreachable given every venue plays at least weekly, but keeps this honest
 }
 
-// Live "next session in" countdown on the pitch face of the flip card. Ticks
-// every second, and re-picks its target the moment one session's countdown
-// hits zero so it just keeps counting down to the one after.
+const COUNTDOWN_URGENT_SECONDS = 3600; // under an hour to go: switch to the "urgent" look
+
+// Live "next session in" countdown, sitting in the sticky bar at the top of
+// the page. Ticks every second, and re-picks its target the moment one
+// session's countdown hits zero so it just keeps counting down to the one
+// after. It also only picks up its drop shadow once the page has actually
+// scrolled (see .game-countdown.is-scrolled), so it doesn't look like a
+// separate bar floating over the hero until it needs to (i.e. once it's
+// actually stuck over scrolled-past content).
 function initGameCountdown() {
+  const countdown = document.getElementById('game-countdown');
+  const label = document.querySelector('.game-countdown-label');
   const daysEl = document.getElementById('countdown-days');
   const hoursEl = document.getElementById('countdown-hours');
   const minsEl = document.getElementById('countdown-mins');
   const secsEl = document.getElementById('countdown-secs');
-  if (!daysEl || !hoursEl || !minsEl || !secsEl) return;
+  if (!countdown || !label || !daysEl || !hoursEl || !minsEl || !secsEl) return;
+
+  function updateScrolledState() {
+    countdown.classList.toggle('is-scrolled', window.scrollY > 4);
+  }
+  updateScrolledState();
+  window.addEventListener('scroll', updateScrolledState, { passive: true });
 
   let target = getNextSessionDate(getCurrentVenue(new Date()), new Date());
 
@@ -601,6 +695,10 @@ function initGameCountdown() {
     hoursEl.textContent = String(hours).padStart(2, '0');
     minsEl.textContent = String(mins).padStart(2, '0');
     secsEl.textContent = String(secs).padStart(2, '0');
+
+    const isUrgent = remainingSeconds <= COUNTDOWN_URGENT_SECONDS;
+    countdown.classList.toggle('is-urgent', isUrgent);
+    label.textContent = isUrgent ? 'Kicking off soon' : 'Next session in';
   }
 
   tick();
@@ -624,14 +722,18 @@ function renderWeather(body, data, targetDateStr, sessionHour) {
   const wind = Math.round(data.hourly.wind_speed_10m[hourIndex]);
 
   // Mud rating: rainfall over the last 3 days (how wet the ground already is)
-  // plus whatever's forecast to fall on game day itself. Requested with
-  // past_days=3, so the daily array's first 3 entries are always those days,
-  // and its last entry is always game day (forecast_days = daysAhead + 1).
-  const past3DaysRain = data.daily.precipitation_sum
-    .slice(0, 3)
-    .reduce((sum, mm) => sum + (mm || 0), 0);
-  const gameDayRain = data.daily.precipitation_sum[data.daily.precipitation_sum.length - 1] || 0;
-  const mud = getMudCondition(past3DaysRain + gameDayRain);
+  // plus whatever's forecast to fall on game day itself. The daily array's
+  // last entry is always game day (forecast_days = daysAhead + 1).
+  const dailyRain = data.daily.precipitation_sum.map((mm) => mm || 0);
+  const gameDayIndex = dailyRain.length - 1;
+  const mud = getMudCondition(rollingRain(dailyRain, gameDayIndex));
+
+  // Trend: the same rolling-4-day mud reading, day by day, for the last
+  // MUD_TREND_DAYS days up to and including game day.
+  const trendPercents = [];
+  for (let i = gameDayIndex - MUD_TREND_DAYS + 1; i <= gameDayIndex; i++) {
+    trendPercents.push(getMudCondition(rollingRain(dailyRain, i)).percent);
+  }
 
   body.innerHTML = `
     <div class="weather-main">
@@ -646,11 +748,49 @@ function renderWeather(body, data, targetDateStr, sessionHour) {
         <span class="mud-caption">${mud.label}</span>
       </div>
       <div class="mud-bar"><div class="mud-fill" style="width:${mud.percent}%"></div></div>
+      <div class="mud-trend">
+        <span class="mud-trend-label">Mud trend &mdash; last 2 weeks</span>
+        ${buildMudTrendSvg(trendPercents)}
+      </div>
     </div>
   `;
 
   const liquid = document.getElementById('mud-liquid');
   if (liquid) liquid.style.height = `${mud.percent}%`;
+}
+
+// Rainfall (mm) on the given day plus the 3 days before it — the same
+// rolling window getMudCondition expects, clamped to the start of the array.
+function rollingRain(dailyRain, index) {
+  return dailyRain.slice(Math.max(0, index - 3), index + 1).reduce((sum, mm) => sum + mm, 0);
+}
+
+// Sparkline of mud-o-meter percentages over the last couple of weeks, ending
+// at game day. Deliberately reuses getMudCondition's stepped percentages
+// rather than a smoothed curve, so the line always agrees with whatever the
+// bar above it is showing for "today". The filled area under the line (and
+// the "today" dot) are there to make the trend readable at a glance, not
+// just present.
+function buildMudTrendSvg(percents) {
+  const width = 280;
+  const height = 44;
+  const padY = 4;
+  const step = width / (percents.length - 1);
+  const coords = percents.map((percent, i) => ({
+    x: i * step,
+    y: height - padY - (percent / 100) * (height - padY * 2),
+  }));
+  const points = coords.map(({ x, y }) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  const areaPoints = `0,${height} ${points} ${width.toFixed(1)},${height}`;
+  const last = coords[coords.length - 1];
+
+  return `
+    <svg class="mud-sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true">
+      <polygon class="mud-sparkline-area" points="${areaPoints}"></polygon>
+      <polyline class="mud-sparkline-line" points="${points}"></polyline>
+      <circle class="mud-sparkline-dot" cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3.4" />
+    </svg>
+  `;
 }
 
 // Rough mud forecast from rainfall (mm) accumulated over the last ~2-3 days.
