@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initWhatsappCaptcha();
   initWeatherWidget();
   initWeatherFlip();
+  initGameCountdown();
   initMudSplats();
   initHeroPlayers();
   initHeroWeather();
@@ -508,6 +509,16 @@ const WEATHER_CODES = {
   99: ['⛈️', 'Thunderstorm'],
 };
 
+// Whichever venue is in season right now. weekdays: 0 = Sunday ... 6 = Saturday.
+// hour: session start (24h, local time).
+function getCurrentVenue(now) {
+  const month = now.getMonth();
+  const isSummerSeason = month >= 4 && month <= 8;
+  return isSummerSeason
+    ? { name: 'Horfield', lat: 51.4838, lon: -2.5844, weekdays: [3], hour: 18 } // Wednesday
+    : { name: 'Clifton Downs', lat: 51.4676, lon: -2.6207, weekdays: [6, 0], hour: 10 }; // Sat or Sun
+}
+
 // "Pitch conditions" weather widget: forecasts conditions for the next game
 // day (not just "right now") at whichever venue is in season, plus a
 // "mud-o-meter" built from rainfall accumulating up to that day.
@@ -517,12 +528,7 @@ function initWeatherWidget() {
   if (!body) return;
 
   const now = new Date();
-  const month = now.getMonth();
-  const isSummerSeason = month >= 4 && month <= 8;
-  // weekdays: 0 = Sunday ... 6 = Saturday. hour: session start, for picking the forecast hour.
-  const venue = isSummerSeason
-    ? { name: 'Horfield', lat: 51.4838, lon: -2.5844, weekdays: [3], hour: 18 } // Wednesday
-    : { name: 'Clifton Downs', lat: 51.4676, lon: -2.6207, weekdays: [6, 0], hour: 10 }; // Sat or Sun
+  const venue = getCurrentVenue(now);
 
   const daysAhead = Math.min(...venue.weekdays.map((weekday) => (weekday - now.getDay() + 7) % 7));
   const targetDate = new Date(now);
@@ -551,6 +557,54 @@ function initWeatherWidget() {
       body.innerHTML =
         '<p class="weather-status">Couldn&rsquo;t reach the forecast &mdash; check your favourite weather app instead.</p>';
     });
+}
+
+// The next date/time the in-season venue's session kicks off, searched a day
+// at a time (a week is more than enough headroom) so it's always strictly in
+// the future — including "today", if the session hasn't started yet.
+function getNextSessionDate(venue, now) {
+  for (let offset = 0; offset <= 8; offset++) {
+    const candidate = new Date(now);
+    candidate.setDate(now.getDate() + offset);
+    candidate.setHours(venue.hour, 0, 0, 0);
+    if (venue.weekdays.includes(candidate.getDay()) && candidate > now) {
+      return candidate;
+    }
+  }
+  return null; // unreachable given every venue plays at least weekly, but keeps this honest
+}
+
+// Live "next session in" countdown on the pitch face of the flip card. Ticks
+// every second, and re-picks its target the moment one session's countdown
+// hits zero so it just keeps counting down to the one after.
+function initGameCountdown() {
+  const daysEl = document.getElementById('countdown-days');
+  const hoursEl = document.getElementById('countdown-hours');
+  const minsEl = document.getElementById('countdown-mins');
+  const secsEl = document.getElementById('countdown-secs');
+  if (!daysEl || !hoursEl || !minsEl || !secsEl) return;
+
+  let target = getNextSessionDate(getCurrentVenue(new Date()), new Date());
+
+  function tick() {
+    const now = new Date();
+    if (!target || target <= now) target = getNextSessionDate(getCurrentVenue(now), now);
+    if (!target) return;
+
+    const remainingSeconds = Math.max(0, Math.round((target - now) / 1000));
+    const days = Math.floor(remainingSeconds / 86400);
+    const hours = Math.floor((remainingSeconds % 86400) / 3600);
+    const mins = Math.floor((remainingSeconds % 3600) / 60);
+    const secs = remainingSeconds % 60;
+
+    daysEl.textContent = String(days).padStart(2, '0');
+    hoursEl.textContent = String(hours).padStart(2, '0');
+    minsEl.textContent = String(mins).padStart(2, '0');
+    secsEl.textContent = String(secs).padStart(2, '0');
+  }
+
+  tick();
+  setInterval(tick, 1000);
 }
 
 function formatLocalDate(date) {

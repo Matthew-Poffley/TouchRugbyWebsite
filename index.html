@@ -208,6 +208,15 @@
                     <div id="weather-body" class="weather-body">
                         <p class="weather-status">Checking the forecast&hellip;</p>
                     </div>
+                    <div class="game-countdown" id="game-countdown">
+                        <span class="game-countdown-label">Next session in</span>
+                        <div class="game-countdown-clock">
+                            <span class="countdown-segment"><span class="countdown-value" id="countdown-days">00</span><span class="countdown-unit">d</span></span>
+                            <span class="countdown-segment"><span class="countdown-value" id="countdown-hours">00</span><span class="countdown-unit">h</span></span>
+                            <span class="countdown-segment"><span class="countdown-value" id="countdown-mins">00</span><span class="countdown-unit">m</span></span>
+                            <span class="countdown-segment"><span class="countdown-value" id="countdown-secs">00</span><span class="countdown-unit">s</span></span>
+                        </div>
+                    </div>
                 </div>
                 <div class="weather-face weather-face-back">
                     <!-- viewBox is 120m x 70m at 10 units/metre: 10m in-goal each end, so the
@@ -231,7 +240,7 @@
                         <!-- halfway -->
                         <line x1="600" y1="0" x2="600" y2="700" class="pitch-line pitch-line-halfway" />
                     </svg>
-                    <span class="pitch-tap-hint"><span class="icon">🏉</span>Tap for the next game day&rsquo;s conditions</span>
+                    <span class="pitch-tap-hint"><span class="icon">🏉</span>Tap for next game details</span>
                 </div>
             </div>
         </div>
@@ -263,6 +272,7 @@
                     </button>
                     <div class="faq-answer">
                         <p>No we're happy to teach, the basic rules are quick and easy to pick up and we are lenient to new players.</p>
+                        <p><a href="https://www.youtube.com/watch?v=pOsgJP2L47s" target="_blank" rel="noopener" class="text-link">Link to rules</a></p>
                     </div>
                 </div>
 
