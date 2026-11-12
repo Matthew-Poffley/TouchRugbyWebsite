@@ -1,6 +1,6 @@
 {
   "week": "2026-11-09",
-  "cancelled": false,
+  "cancelled": true,
   "winterDay": "both",
-  "message": ""
+  "message": "Test message - blab blab"
 }
