@@ -532,29 +532,21 @@ function renderWinterDayPick() {
   line.classList.remove('hidden');
 }
 
-// Banner under the countdown bar for a cancelled week, or a winter week where
-// only one of Saturday / Sunday is on. Text goes in via textContent, so
-// whatever's in status.json can't inject markup.
+// Banner under the countdown bar for a cancelled week. Text goes in via
+// textContent, so whatever's in status.json can't inject markup.
 function renderStatusBanner() {
   const countdown = document.getElementById('game-countdown');
   if (!weekStatus || !countdown) return;
 
   renderWinterDayPick();
 
-  let text;
-  let className = 'status-banner';
-  if (weekStatus.cancelled) {
-    text = '❌ No session this week';
-    className += ' is-cancelled';
-  } else if (weekStatus.winterDay !== 'both' && getCurrentVenue(new Date()).weekdays.length > 1) {
-    text = `📍 This week: ${weekStatus.winterDay === 'sat' ? 'Saturday' : 'Sunday'} only`;
-  } else {
-    return;
-  }
+  if (!weekStatus.cancelled) return; // a Saturday / Sunday pick only shows on the winter card
+
+  let text = '❌ No session this week';
   if (weekStatus.message) text += ` — ${weekStatus.message}`;
 
   const banner = document.createElement('div');
-  banner.className = className;
+  banner.className = 'status-banner is-cancelled';
   banner.setAttribute('role', 'status');
   banner.textContent = text;
   countdown.after(banner);
@@ -751,7 +743,13 @@ function initGameCountdown() {
     const isUrgent = remainingSeconds <= COUNTDOWN_URGENT_SECONDS;
     countdown.classList.toggle('is-urgent', isUrgent);
     const cancelledWeek = weekStatus && weekStatus.cancelled && now >= weekStatus.start && now < weekStatus.end;
-    label.textContent = isUrgent ? 'Kicking off soon' : cancelledWeek ? 'Cancelled this week · next session in' : 'Next session in';
+    const dayName = target.toLocaleDateString('en-GB', { weekday: 'long' });
+    const nextSession = `next session (${dayName}) in`;
+    label.textContent = isUrgent
+      ? 'Kicking off soon'
+      : cancelledWeek
+        ? `Cancelled this week · ${nextSession}`
+        : `Next session (${dayName}) in`;
   }
 
   tick();
