@@ -490,7 +490,7 @@ function loadWeekStatus() {
   return fetch(`status.json?t=${Date.now()}`, { cache: 'no-store' })
     .then((response) => (response.ok ? response.json() : null))
     .then((raw) => {
-      const match = raw && typeof raw.week === 'string' && raw.week.match(/^(d{4})-(d{2})-(d{2})$/);
+      const match = raw && typeof raw.week === 'string' && raw.week.match(/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/);
       if (!match) return;
       const start = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
       const end = new Date(start);
@@ -750,7 +750,8 @@ function initGameCountdown() {
 
     const isUrgent = remainingSeconds <= COUNTDOWN_URGENT_SECONDS;
     countdown.classList.toggle('is-urgent', isUrgent);
-    label.textContent = isUrgent ? 'Kicking off soon' : 'Next session in';
+    const cancelledWeek = weekStatus && weekStatus.cancelled && now >= weekStatus.start && now < weekStatus.end;
+    label.textContent = isUrgent ? 'Kicking off soon' : cancelledWeek ? 'Cancelled this week · next session in' : 'Next session in';
   }
 
   tick();

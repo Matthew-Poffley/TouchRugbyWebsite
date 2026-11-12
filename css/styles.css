@@ -1235,3 +1235,9 @@
 .winter-day-pick {
   font-weight: 700;
 }
+
+/* .season-card li sets display:flex, which would otherwise beat Tailwind's
+   .hidden and leave an empty row showing. */
+.season-card li.hidden {
+  display: none;
+}
