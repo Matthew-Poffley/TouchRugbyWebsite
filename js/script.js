@@ -710,11 +710,12 @@ const COUNTDOWN_URGENT_SECONDS = 3600; // under an hour to go: switch to the "ur
 function initGameCountdown() {
   const countdown = document.getElementById('game-countdown');
   const label = document.querySelector('.game-countdown-label');
+  const clock = document.querySelector('.game-countdown-clock');
   const daysEl = document.getElementById('countdown-days');
   const hoursEl = document.getElementById('countdown-hours');
   const minsEl = document.getElementById('countdown-mins');
   const secsEl = document.getElementById('countdown-secs');
-  if (!countdown || !label || !daysEl || !hoursEl || !minsEl || !secsEl) return;
+  if (!countdown || !label || !clock || !daysEl || !hoursEl || !minsEl || !secsEl) return;
 
   function updateScrolledState() {
     countdown.classList.toggle('is-scrolled', window.scrollY > 4);
@@ -744,12 +745,23 @@ function initGameCountdown() {
     countdown.classList.toggle('is-urgent', isUrgent);
     const cancelledWeek = weekStatus && weekStatus.cancelled && now >= weekStatus.start && now < weekStatus.end;
     const dayName = target.toLocaleDateString('en-GB', { weekday: 'long' });
-    const nextSession = `next session (${dayName}) in`;
-    label.textContent = isUrgent
-      ? 'Kicking off soon'
-      : cancelledWeek
-        ? `Cancelled this week · ${nextSession}`
-        : `Next session (${dayName}) in`;
+    // In winter the day is voted on each week (by Thursday). Until it's been
+    // picked, there's no single session to count down to, so say so instead.
+    const isWinter = getCurrentVenue(now).weekdays.length > 1;
+    const dayPicked =
+      weekStatus && target >= weekStatus.start && target < weekStatus.end && weekStatus.winterDay !== 'both';
+    const isUndecided = isWinter && !dayPicked;
+    clock.style.display = isUndecided && !isUrgent ? 'none' : '';
+
+    const lead = cancelledWeek ? 'Cancelled this week · next' : 'Next';
+    if (isUrgent) {
+      label.textContent = 'Kicking off soon';
+    } else if (isUndecided) {
+      const checkWhen = now.getDay() === 5 || now.getDay() === 6 ? 'check WhatsApp' : 'check Thursday evening';
+      label.textContent = `${lead} session undecided · ${checkWhen}`;
+    } else {
+      label.textContent = `${lead} session (${dayName}) in`;
+    }
   }
 
   tick();
