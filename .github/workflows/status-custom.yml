@@ -1,0 +1,57 @@
+name: "5. Custom status (message / next week)"
+
+# Same as the one-tap buttons, but lets you add a message to the banner
+# (e.g. "pitch waterlogged") or set up next week in advance.
+on:
+  workflow_dispatch:
+    inputs:
+      status:
+        description: What's happening
+        type: choice
+        options:
+          - Cancelled
+          - Saturday only
+          - Sunday only
+          - Normal
+        default: Cancelled
+      week:
+        description: Which week
+        type: choice
+        options:
+          - this
+          - next
+        default: this
+      message:
+        description: Optional message for the banner
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency: site-status
+
+jobs:
+  set-status:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update status.json
+        run: |
+          case "$INPUT_STATUS" in
+            "Cancelled")     export STATUS_CANCELLED=true  STATUS_DAY=both ;;
+            "Saturday only") export STATUS_CANCELLED=false STATUS_DAY=sat ;;
+            "Sunday only")   export STATUS_CANCELLED=false STATUS_DAY=sun ;;
+            *)               export STATUS_CANCELLED=false STATUS_DAY=both ;;
+          esac
+          .github/scripts/set-status.sh
+        env:
+          INPUT_STATUS: ${{ inputs.status }}
+          STATUS_WEEK: ${{ inputs.week }}
+          STATUS_MESSAGE: ${{ inputs.message }}
+      - name: Ask GitHub Pages to rebuild
+        continue-on-error: true
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds"
+        env:
+          GH_TOKEN: ${{ github.token }}

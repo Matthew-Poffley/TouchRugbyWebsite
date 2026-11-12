@@ -1,0 +1,29 @@
+name: "3. This week - Sunday only"
+
+# One-tap button: open the Actions tab in the GitHub app/website, pick this
+# workflow and tap "Run workflow". Applies to the current week.
+on: workflow_dispatch
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency: site-status
+
+jobs:
+  set-status:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update status.json
+        run: .github/scripts/set-status.sh
+        env:
+          STATUS_CANCELLED: "false"
+          STATUS_DAY: "sun"
+          STATUS_WEEK: this
+          STATUS_MESSAGE: ""
+      - name: Ask GitHub Pages to rebuild
+        continue-on-error: true
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds"
+        env:
+          GH_TOKEN: ${{ github.token }}

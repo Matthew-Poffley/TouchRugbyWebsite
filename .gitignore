@@ -4,3 +4,6 @@
 
 *.json
 /.vs
+
+# Admin override written by the GitHub Actions in .github/workflows
+!/status.json

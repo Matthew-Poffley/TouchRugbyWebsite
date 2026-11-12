@@ -9,13 +9,19 @@ document.addEventListener('DOMContentLoaded', () => {
   initAdminCarousel();
   initFaqAccordion();
   initWhatsappCaptcha();
-  initWeatherWidget();
   initWeatherFlip();
-  initGameCountdown();
   initDistanceCheck();
-  initMudSplats();
   initHeroPlayers();
   initHeroWeather();
+
+  // The weather card and countdown both depend on whether this week's
+  // session is cancelled / moved, so they wait for status.json (which always
+  // resolves, even if it can't be loaded).
+  loadWeekStatus().then(() => {
+    renderStatusBanner();
+    initWeatherWidget();
+    initGameCountdown();
+  });
 });
 
 // The hero background loops a rugby strike play, run until it scores: the
@@ -340,53 +346,6 @@ function initWeatherFlip() {
   });
 }
 
-// Little mud splats trail the cursor across the pitch-conditions card once
-// it's flipped over to the muddy side — purely for fun, so it's skipped
-// under reduced motion and throttled by distance so a fast swipe doesn't
-// carpet the card in splats.
-function initMudSplats() {
-  const flip = document.getElementById('weather-flip');
-  const card = document.querySelector('.weather-face-front.weather-card');
-  if (!flip || !card) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-  const MIN_DISTANCE = 22; // px the pointer must travel before the next splat
-  const MAX_SPLATS = 40; // safety cap for a long hover session
-  let lastX = null;
-  let lastY = null;
-  let splats = [];
-
-  function spawnSplat(x, y) {
-    const splat = document.createElement('span');
-    splat.className = 'mud-splat';
-    splat.style.left = `${x}px`;
-    splat.style.top = `${y}px`;
-    splat.style.setProperty('--splat-rotate', `${Math.random() * 360}deg`);
-    splat.style.setProperty('--splat-scale', `${0.75 + Math.random() * 0.5}`);
-    splat.addEventListener('animationend', () => splat.remove());
-    card.appendChild(splat);
-    splats.push(splat);
-    if (splats.length > MAX_SPLATS) splats.shift().remove();
-  }
-
-  flip.addEventListener('pointermove', (event) => {
-    if (!flip.classList.contains('is-flipped')) return;
-    const rect = card.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
-    if (lastX !== null && Math.hypot(x - lastX, y - lastY) < MIN_DISTANCE) return;
-    lastX = x;
-    lastY = y;
-    spawnSplat(x, y);
-  });
-
-  flip.addEventListener('pointerleave', () => {
-    lastX = null;
-    lastY = null;
-  });
-}
-
 function activateCurrentSeasons() {
   const month = new Date().getMonth(); // 0 = January ... 11 = December
   const isSummerActive = month >= 4 && month <= 8; // May - September
@@ -520,6 +479,87 @@ function getCurrentVenue(now) {
     : { name: 'Clifton Downs', lat: 51.4676, lon: -2.6207, weekdays: [6, 0], hour: 10 }; // Sat or Sun
 }
 
+// This week's admin override, from status.json (written by the GitHub Actions
+// in .github/workflows — see README). null when there isn't one, it's for a
+// different week, or the file couldn't be read, in which case the normal
+// schedule applies. Shape: { cancelled, winterDay: 'both'|'sat'|'sun',
+// message, start, end } where start/end bound the week it covers.
+let weekStatus = null;
+
+function loadWeekStatus() {
+  return fetch(`status.json?t=${Date.now()}`, { cache: 'no-store' })
+    .then((response) => (response.ok ? response.json() : null))
+    .then((raw) => {
+      const match = raw && typeof raw.week === 'string' && raw.week.match(/^(d{4})-(d{2})-(d{2})$/);
+      if (!match) return;
+      const start = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+      const end = new Date(start);
+      end.setDate(start.getDate() + 7);
+      const now = new Date();
+      if (now < start || now >= end) return; // stale: the week it covered has passed
+      weekStatus = {
+        cancelled: raw.cancelled === true,
+        winterDay: raw.winterDay === 'sat' || raw.winterDay === 'sun' ? raw.winterDay : 'both',
+        message: typeof raw.message === 'string' ? raw.message.slice(0, 200) : '',
+        start,
+        end,
+      };
+    })
+    .catch(() => {}); // a missing or malformed file just means "no override"
+}
+
+// Whether a session on the given date/time is still going ahead, once this
+// week's override (if any) is applied. Dates outside the override's week are
+// unaffected. A venue with both Saturday and Sunday sessions is the winter one.
+function isSessionAllowed(date, venue) {
+  const status = weekStatus;
+  if (!status || date < status.start || date >= status.end) return true;
+  if (status.cancelled) return false;
+  if (venue.weekdays.length > 1 && status.winterDay !== 'both') {
+    return date.getDay() === (status.winterDay === 'sat' ? 6 : 0);
+  }
+  return true;
+}
+
+// Extra line on the winter card once the Saturday / Sunday vote has been
+// settled. Like the rest of the override it covers one Monday-to-Sunday week,
+// so on Monday it disappears again and the card goes back to "either".
+function renderWinterDayPick() {
+  const line = document.getElementById('winter-day-pick');
+  const text = document.getElementById('winter-day-pick-text');
+  if (!line || !text || weekStatus.cancelled || weekStatus.winterDay === 'both') return;
+  text.textContent = `This week: ${weekStatus.winterDay === 'sat' ? 'Saturday' : 'Sunday'} won the vote`;
+  line.classList.remove('hidden');
+}
+
+// Banner under the countdown bar for a cancelled week, or a winter week where
+// only one of Saturday / Sunday is on. Text goes in via textContent, so
+// whatever's in status.json can't inject markup.
+function renderStatusBanner() {
+  const countdown = document.getElementById('game-countdown');
+  if (!weekStatus || !countdown) return;
+
+  renderWinterDayPick();
+
+  let text;
+  let className = 'status-banner';
+  if (weekStatus.cancelled) {
+    text = '❌ No session this week';
+    className += ' is-cancelled';
+  } else if (weekStatus.winterDay !== 'both' && getCurrentVenue(new Date()).weekdays.length > 1) {
+    text = `📍 This week: ${weekStatus.winterDay === 'sat' ? 'Saturday' : 'Sunday'} only`;
+  } else {
+    return;
+  }
+  if (weekStatus.message) text += ` — ${weekStatus.message}`;
+
+  const banner = document.createElement('div');
+  banner.className = className;
+  banner.setAttribute('role', 'status');
+  banner.textContent = text;
+  countdown.after(banner);
+}
+
 const WALK_MPH = 3; // rough flat-ground walking pace
 const DRIVE_MPH = 20; // rough average for a short local drive, traffic and stops included
 const WALK_MINS_CUTOFF = 30; // beyond this, show the drive time instead
@@ -608,9 +648,21 @@ function initWeatherWidget() {
   const now = new Date();
   const venue = getCurrentVenue(now);
 
-  const daysAhead = Math.min(...venue.weekdays.map((weekday) => (weekday - now.getDay() + 7) % 7));
-  const targetDate = new Date(now);
-  targetDate.setDate(now.getDate() + daysAhead);
+  // First game day (today included) that's in the venue's schedule and not
+  // cancelled / moved by this week's override.
+  let daysAhead = 0;
+  let targetDate = new Date(now);
+  for (let offset = 0; offset <= 14; offset++) {
+    const candidate = new Date(now);
+    candidate.setDate(now.getDate() + offset);
+    const kickoff = new Date(candidate);
+    kickoff.setHours(venue.hour, 0, 0, 0);
+    if (venue.weekdays.includes(candidate.getDay()) && isSessionAllowed(kickoff, venue)) {
+      daysAhead = offset;
+      targetDate = candidate;
+      break;
+    }
+  }
   const targetDateStr = formatLocalDate(targetDate);
 
   const dayLabel =
@@ -624,8 +676,8 @@ function initWeatherWidget() {
   // 3-day lookback for the rolling window its earliest point needs.
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${venue.lat}&longitude=${venue.lon}` +
-    '&hourly=temperature_2m,weather_code,wind_speed_10m&daily=precipitation_sum' +
-    `&past_days=${MUD_TREND_DAYS + 3}&forecast_days=${forecastDays}&timezone=Europe%2FLondon&wind_speed_unit=mph`;
+    '&hourly=temperature_2m,weather_code,wind_speed_10m,soil_moisture_0_to_7cm&daily=precipitation_sum' +
+    `&past_days=${MUD_TREND_DAYS + MUD_LOOKBACK_DAYS - 1}&forecast_days=${forecastDays}&timezone=Europe%2FLondon&wind_speed_unit=mph`;
 
   fetch(url)
     .then((response) => {
@@ -640,14 +692,14 @@ function initWeatherWidget() {
 }
 
 // The next date/time the in-season venue's session kicks off, searched a day
-// at a time (a week is more than enough headroom) so it's always strictly in
+// at a time (two weeks of headroom, for a cancelled week) so it's always strictly in
 // the future — including "today", if the session hasn't started yet.
 function getNextSessionDate(venue, now) {
-  for (let offset = 0; offset <= 8; offset++) {
+  for (let offset = 0; offset <= 15; offset++) {
     const candidate = new Date(now);
     candidate.setDate(now.getDate() + offset);
     candidate.setHours(venue.hour, 0, 0, 0);
-    if (venue.weekdays.includes(candidate.getDay()) && candidate > now) {
+    if (venue.weekdays.includes(candidate.getDay()) && candidate > now && isSessionAllowed(candidate, venue)) {
       return candidate;
     }
   }
@@ -726,7 +778,7 @@ function renderWeather(body, data, targetDateStr, venue) {
   // last entry is always game day (forecast_days = daysAhead + 1).
   const dailyRain = data.daily.precipitation_sum.map((mm) => mm || 0);
   const gameDayIndex = dailyRain.length - 1;
-  const mud = getMudCondition(rollingRain(dailyRain, gameDayIndex));
+  const mud = getMudCondition(rollingRain(dailyRain, gameDayIndex), soilMoistureOn(data, gameDayIndex, venue.hour));
 
   // Trend: the same rolling-4-day mud reading, day by day, for the last
   // MUD_TREND_DAYS days up to and including game day. Also flags which of
@@ -735,7 +787,9 @@ function renderWeather(body, data, targetDateStr, venue) {
   const trendPercents = [];
   const trendIsPastGameDay = [];
   for (let i = gameDayIndex - MUD_TREND_DAYS + 1; i <= gameDayIndex; i++) {
-    trendPercents.push(getMudCondition(rollingRain(dailyRain, i)).percent);
+    trendPercents.push(
+      getMudCondition(rollingRain(dailyRain, i), soilMoistureOn(data, i, venue.hour)).percent
+    );
     trendIsPastGameDay.push(i < gameDayIndex && isGameDay(data.daily.time[i], venue.weekdays));
   }
 
@@ -763,10 +817,18 @@ function renderWeather(body, data, targetDateStr, venue) {
   if (liquid) liquid.style.height = `${mud.percent}%`;
 }
 
-// Rainfall (mm) on the given day plus the 3 days before it — the same
-// rolling window getMudCondition expects, clamped to the start of the array.
+// How wet the ground is on the given day: rainfall over that day and the 6
+// before it, with recent days counting for more (each day further back is
+// worth MUD_RAIN_DECAY times the one after it) because wet ground dries out
+// slowly rather than resetting after a few days. Clamped to the array start.
+const MUD_LOOKBACK_DAYS = 7;
+const MUD_RAIN_DECAY = 0.75;
 function rollingRain(dailyRain, index) {
-  return dailyRain.slice(Math.max(0, index - 3), index + 1).reduce((sum, mm) => sum + mm, 0);
+  let total = 0;
+  for (let k = 0; k < MUD_LOOKBACK_DAYS && index - k >= 0; k++) {
+    total += dailyRain[index - k] * Math.pow(MUD_RAIN_DECAY, k);
+  }
+  return total;
 }
 
 // Whether the given "YYYY-MM-DD" date fell on one of the venue's session
@@ -820,12 +882,68 @@ function buildMudTrendSvg(percents, isPastGameDay) {
   `;
 }
 
-// Rough mud forecast from rainfall (mm) accumulated over the last ~2-3 days.
-function getMudCondition(rainMm) {
-  if (rainMm < 1) return { percent: 8, label: 'Bone dry — studs optional' };
-  if (rainMm < 8) return { percent: 30, label: 'A bit soft underfoot' };
-  if (rainMm < 20) return { percent: 65, label: 'Getting squelchy — boots recommended' };
-  return { percent: 95, label: 'Full mudbath — bring spare socks' };
+// Mud forecast from weighted recent rainfall (see rollingRain). The percentage
+// is interpolated smoothly between these anchor points rather than jumping in
+// big steps, and the label comes from whichever band the reading falls in.
+const MUD_SCALE = [
+  { rain: 0, percent: 4 },
+  { rain: 0.3, percent: 10 },
+  { rain: 1.5, percent: 22 },
+  { rain: 4, percent: 38 },
+  { rain: 8, percent: 55 },
+  { rain: 14, percent: 72 },
+  { rain: 22, percent: 88 },
+  { rain: 32, percent: 98 },
+];
+// Labels are keyed on the final blended percentage (upper bound, exclusive).
+const MUD_LABELS = [
+  [10, 'Bone dry — studs optional'],
+  [22, 'Dry and firm underfoot'],
+  [38, 'A touch of give underfoot'],
+  [55, 'Nice and soft underfoot'],
+  [72, 'Getting squelchy — boots recommended'],
+  [88, 'Properly boggy'],
+  [Infinity, 'Full mudbath — bring spare socks'],
+];
+
+// Volumetric soil moisture (m³/m³, top 7cm) at kickoff on the given daily
+// index, or null if the forecast doesn't have it. UK soil sits around 0.2
+// when parched and 0.45+ when saturated.
+function soilMoistureOn(data, dayIndex, hour) {
+  const key = `${data.daily.time[dayIndex]}T${String(hour).padStart(2, '0')}:00`;
+  const i = data.hourly.time.indexOf(key);
+  const value = i === -1 ? null : data.hourly.soil_moisture_0_to_7cm?.[i];
+  return typeof value === 'number' ? value : null;
+}
+
+const SOIL_DRY = 0.2;
+const SOIL_SATURATED = 0.45;
+const SOIL_WEIGHT = 0.5; // share of the final reading that comes from measured soil moisture
+
+// Blends the rainfall-based reading (what's fallen recently) with the soil
+// moisture model (what the ground is actually like, after drainage and
+// evaporation). If soil data is missing it falls back to rainfall alone.
+function getMudCondition(rainMm, soilMoisture = null) {
+  let rainPercent = MUD_SCALE[MUD_SCALE.length - 1].percent;
+  for (let i = 1; i < MUD_SCALE.length; i++) {
+    const lo = MUD_SCALE[i - 1];
+    const hi = MUD_SCALE[i];
+    if (rainMm < hi.rain) {
+      rainPercent = lo.percent + ((rainMm - lo.rain) / (hi.rain - lo.rain)) * (hi.percent - lo.percent);
+      break;
+    }
+  }
+
+  let percent = rainPercent;
+  if (soilMoisture !== null) {
+    const fraction = Math.min(1, Math.max(0, (soilMoisture - SOIL_DRY) / (SOIL_SATURATED - SOIL_DRY)));
+    const soilPercent = 4 + fraction * 94;
+    percent = rainPercent * (1 - SOIL_WEIGHT) + soilPercent * SOIL_WEIGHT;
+  }
+
+  percent = Math.round(percent);
+  const label = MUD_LABELS.find(([limit]) => percent < limit)[1];
+  return { percent, label };
 }
 
 // "Join the WhatsApp group" captcha: a homemade spot-the-rugby-ball check that
