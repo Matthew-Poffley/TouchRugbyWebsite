@@ -45,7 +45,7 @@ jobs:
             "Sunday only")   export STATUS_CANCELLED=false STATUS_DAY=sun ;;
             *)               export STATUS_CANCELLED=false STATUS_DAY=both ;;
           esac
-          .github/scripts/set-status.sh
+          bash .github/scripts/set-status.sh
         env:
           INPUT_STATUS: ${{ inputs.status }}
           STATUS_WEEK: ${{ inputs.week }}

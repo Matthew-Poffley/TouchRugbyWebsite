@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Update status.json
-        run: .github/scripts/set-status.sh
+        run: bash .github/scripts/set-status.sh
         env:
           STATUS_CANCELLED: "true"
           STATUS_DAY: "both"
